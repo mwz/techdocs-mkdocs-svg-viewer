@@ -1,0 +1,2 @@
+mkdocs-techdocs-core
+mkdocs-inline-select-svg-plugin==0.1.0

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TechDocs SVG viewer demo</title>
+    <style>
+      body {
+        margin: 0;
+        font: 16px/1.6 system-ui;
+        background: #f4f6fa;
+        color: #192338;
+      }
+      header,
+      main {
+        max-width: 980px;
+        margin: auto;
+        padding: 24px;
+      }
+      header p {
+        color: #52617c;
+      }
+      button {
+        min-height: 44px;
+        padding: 8px 14px;
+      }
+      #docs {
+        display: block;
+        background: white;
+        padding: 24px;
+        border-radius: 12px;
+      }
+      h1 {
+        margin-bottom: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>TechDocs SVG viewer</h1>
+      <p>
+        A local demo using the same viewer controller inside a shadow DOM. Open
+        the diagram, then try its links, zoom and pan controls.
+      </p>
+      <button id="replace">Simulate a TechDocs page change</button>
+      <button id="dispose">Remove addon</button>
+      <button id="install">Install addon</button>
+    </header>
+    <main><div id="docs"></div></main>
+    <script type="module" src="/dev/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+site_name: SVG viewer fixture
+plugins:
+  - techdocs-core
+  - inline-select-svg:
+      pattern: '[.]inline[.]svg$'
