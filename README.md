@@ -81,9 +81,9 @@ uses pnpm and mise for development.
 
 For a Backstage app using Yarn 2–4, use a
 [`portal:` dependency](https://yarnpkg.com/protocol/portal) to reference this
-checkout directly. Check your app's Yarn version with `yarn --version`.
-Unlike a folder-based `file:` dependency, a portal does not copy the package,
-so rebuilt files are available without repacking or reinstalling.
+checkout directly. Check your app's Yarn version with `yarn --version`. Unlike a
+folder-based `file:` dependency, a portal does not copy the package, so rebuilt
+files are available without repacking or reinstalling.
 
 The commands below assume sibling checkouts named `backstage` and
 `backstage-techdocs-addon-svg-viewer`. Adjust the paths for your layout.
@@ -97,8 +97,8 @@ pnpm install --frozen-lockfile
 pnpm exec tsup --watch
 ```
 
-Wait for the initial JavaScript and TypeScript declaration builds to finish.
-In another terminal, from `backstage/packages/app`, add the local package:
+Wait for the initial JavaScript and TypeScript declaration builds to finish. In
+another terminal, from `backstage/packages/app`, add the local package:
 
 ```sh
 yarn add '@mwz/backstage-techdocs-addon-svg-viewer@portal:../../../backstage-techdocs-addon-svg-viewer'
@@ -108,9 +108,9 @@ The relative path is measured from `packages/app`, not the Backstage repository
 root. Register the add-on using the legacy or new frontend instructions below,
 then start Backstage with your usual development command.
 
-Keep the watcher running while editing the add-on: its exports point to
-compiled files in `dist`, rather than directly to `src`. Refresh the page after
-a rebuild; restart Backstage if its development server does not pick up the
+Keep the watcher running while editing the add-on: its exports point to compiled
+files in `dist`, rather than directly to `src`. Refresh the page after a
+rebuild; restart Backstage if its development server does not pick up the
 change. `pnpm dev` runs the standalone demo and does not replace this watcher.
 
 Keep the local dependency and associated lockfile changes out of shared
