@@ -23,23 +23,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
         timeout-minutes: 5
       - run: pnpm format:check
-      # Playwright 1.56.1's installer stalls after downloading Chromium on
-      # Node 26.12.1. Use the working Node 24 installer for both matrix jobs.
-      - name: Use Node 24 for browser installation
-        if: matrix.node != '24'
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
       - name: Install Chromium and system dependencies
         run: pnpm exec playwright install --with-deps chromium
         timeout-minutes: 5
         env:
           DEBUG: pw:install
-      - name: Restore matrix Node version
-        if: matrix.node != '24'
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node }}
       - name: Check on matrix Node version
         run: |
           node --version
