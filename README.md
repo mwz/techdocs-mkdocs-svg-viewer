@@ -56,7 +56,9 @@ rolling it out.
 ## Install from the private source repository
 
 No npm package is published, and `private: true` prevents accidental
-publication. Build a tarball, then add it to your Backstage app:
+publication. For an editable local checkout, see
+[Local testing without a tarball](#local-testing-without-a-tarball). To test a
+packaged build, create a tarball and add it to your Backstage app:
 
 ```sh
 git clone git@github.com:mwz/backstage-techdocs-addon-svg-viewer.git
@@ -74,6 +76,61 @@ The tarball includes ESM, CommonJS and TypeScript declarations. You can also
 place this package in your Backstage monorepo as a workspace package and build
 it before the app. Keep your app's existing package manager; this repository
 uses pnpm and mise for development.
+
+### Local testing without a tarball
+
+For a Backstage app using Yarn 2–4, use a
+[`portal:` dependency](https://yarnpkg.com/protocol/portal) to reference this
+checkout directly. Check your app's Yarn version with `yarn --version`. Unlike a
+folder-based `file:` dependency, a portal does not copy the package, so rebuilt
+files are available without repacking or reinstalling.
+
+The commands below assume sibling checkouts named `backstage` and
+`backstage-techdocs-addon-svg-viewer`. Adjust the paths for your layout.
+
+In the add-on checkout, install dependencies and start the build watcher:
+
+```sh
+cd backstage-techdocs-addon-svg-viewer
+mise install
+pnpm install --frozen-lockfile
+pnpm exec tsup --watch
+```
+
+Wait for the initial JavaScript and TypeScript declaration builds to finish. In
+another terminal, from `backstage/packages/app`, add the local package:
+
+```sh
+yarn add '@mwz/backstage-techdocs-addon-svg-viewer@portal:../../../backstage-techdocs-addon-svg-viewer'
+```
+
+The relative path is measured from `packages/app`, not the Backstage repository
+root. Register the add-on using the legacy or new frontend instructions below,
+then start Backstage with your usual development command.
+
+Keep the watcher running while editing the add-on: its exports point to compiled
+files in `dist`, rather than directly to `src`. Refresh the page after a
+rebuild; restart Backstage if its development server does not pick up the
+change. `pnpm dev` runs the standalone demo and does not replace this watcher.
+
+Keep the local dependency and associated lockfile changes out of shared
+Backstage commits, since CI and other developers may not have the neighbouring
+checkout. When finished, restore the previous dependency and run `yarn install`,
+or use `yarn remove @mwz/backstage-techdocs-addon-svg-viewer` from
+`packages/app` if it was added only for this test, and remove its registration.
+
+For Yarn 1 (Classic), `portal:` is unavailable. For a one-off test, run
+`pnpm build` in the add-on checkout, then add the directory from
+`backstage/packages/app`:
+
+```sh
+yarn add '@mwz/backstage-techdocs-addon-svg-viewer@file:../../../backstage-techdocs-addon-svg-viewer'
+```
+
+This avoids creating a tarball, but copies the package. Rebuilding the source
+does not update that installed copy; refresh the installed dependency before
+retesting. Use the tarball workflow above when you want to check the exact
+package contents that will be distributed.
 
 ### Legacy frontend
 
