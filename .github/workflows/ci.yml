@@ -9,6 +9,10 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    container:
+      # Keep this version in sync with @playwright/test in package.json.
+      image: mcr.microsoft.com/playwright:v1.60.0-noble
+      options: --init --ipc=host
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -23,14 +27,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
         timeout-minutes: 5
       - run: pnpm format:check
-      - name: Install Chromium and system dependencies
-        run: pnpm exec playwright install --with-deps chromium
-        timeout-minutes: 5
-        env:
-          DEBUG: pw:install
       - name: Check on matrix Node version
         run: |
           node --version
+          pnpm exec playwright --version
           pnpm check
         timeout-minutes: 10
       - uses: actions/upload-artifact@v4
