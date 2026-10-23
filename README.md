@@ -15,7 +15,7 @@ There are two ways to use it:
   [Legacy frontend](#legacy-frontend) or
   [New frontend system](#new-frontend-system).
 - **MkDocs site outside Backstage:** load the self-contained `svg-viewer.js`
-  with `extra_javascript`. No JavaScript toolchain is needed. See
+  from a CDN with `extra_javascript`. No JavaScript toolchain is needed. See
   [Standalone MkDocs site](#standalone-mkdocs-site-outside-backstage).
 
 ## Behaviour
@@ -75,80 +75,26 @@ navigation, mouse, keyboard and touch. This repository is not a complete
 Backstage app: smoke-test the integration in your own TechDocs instance before
 rolling it out.
 
-## Install from the private source repository
+## Install
 
-No npm package is published, and `private: true` prevents accidental
-publication. For an editable local checkout, see
-[Local testing without a tarball](#local-testing-without-a-tarball). To test a
-packaged build, create a tarball and add it to your Backstage app:
+From the root of your Backstage app:
 
 ```sh
-git clone git@github.com:mwz/techdocs-mkdocs-svg-viewer.git
-cd techdocs-mkdocs-svg-viewer
-mise install
-pnpm install --frozen-lockfile
-pnpm build
-pnpm pack --out ../techdocs-mkdocs-svg-viewer-0.1.0.tgz
-
-# From the root of your Backstage app; adjust the path to the tarball:
-yarn --cwd packages/app add file:../../../techdocs-mkdocs-svg-viewer-0.1.0.tgz
+yarn --cwd packages/app add @mwz/techdocs-mkdocs-svg-viewer
 ```
 
-The tarball includes ESM, CommonJS and TypeScript declarations. You can also
-place this package in your Backstage monorepo as a workspace package and build
-it before the app. Keep your app's existing package manager; this repository
-uses pnpm and mise for development.
+The package includes ESM, CommonJS and TypeScript declarations. Then register
+the addon for the [legacy frontend](#legacy-frontend) or the
+[new frontend system](#new-frontend-system).
 
-### Local testing without a tarball
-
-Add this checkout to your Backstage app as a folder-based `file:` dependency.
-This works with Yarn 1 (Classic) and Yarn 2–4. Yarn copies the folder into the
-app's `node_modules`, so the add-on's peer dependencies (React and the Backstage
-packages) resolve to the app's copies.
-
-Do not use a `portal:` or `link:` dependency. Both create a symlink to this
-checkout. The Backstage bundler follows the symlink, so the add-on then imports
-`react` and `@backstage/*` from this checkout's `node_modules`, which contains
-its development dependencies. The page then has two copies of React and of the
-Backstage API context, and TechDocs fails with
-`TypeError: Cannot read properties of null (reading 'useContext')`.
-
-The commands below assume sibling checkouts named `backstage` and
-`techdocs-mkdocs-svg-viewer`. Adjust the paths for your layout.
-
-In the add-on checkout, install dependencies and build:
+To try unreleased changes from `main`, install a snapshot with the `next` tag:
 
 ```sh
-cd techdocs-mkdocs-svg-viewer
-mise install
-pnpm install --frozen-lockfile
-pnpm build
+yarn --cwd packages/app add @mwz/techdocs-mkdocs-svg-viewer@next
 ```
 
-From `backstage/packages/app`, add the local package:
-
-```sh
-yarn add '@mwz/techdocs-mkdocs-svg-viewer@file:../../../techdocs-mkdocs-svg-viewer'
-```
-
-The relative path is measured from `packages/app`, not the Backstage repository
-root. Register the add-on using the legacy or new frontend instructions below,
-then start Backstage with your usual development command.
-
-The installed copy does not change when you rebuild the add-on. After each
-change, run `pnpm build` in the add-on checkout, then run `yarn install` in the
-Backstage app to copy it again, and restart Backstage. `pnpm dev` runs the
-standalone demo and does not replace this step.
-
-Keep the local dependency and associated lockfile changes out of shared
-Backstage commits, since CI and other developers may not have the neighbouring
-checkout. When finished, restore the previous dependency and run `yarn install`,
-or use `yarn remove @mwz/techdocs-mkdocs-svg-viewer` from `packages/app` if it
-was added only for this test, and remove its registration.
-
-The copy includes the whole checkout, not only the published files. Use the
-tarball workflow above when you want to check the exact package contents that
-will be distributed.
+CI publishes a snapshot, for example `0.2.1-main.42.gabc1234`, when a change to
+the package source is merged to `main`. Snapshots are not stable releases.
 
 ### Legacy frontend
 
@@ -235,14 +181,13 @@ a non-zero viewBox origin and gradient/marker references.
 ## Standalone MkDocs site (outside Backstage)
 
 The viewer also works on a MkDocs site that you host without Backstage, for
-example the output of `mkdocs build` or `techdocs-cli generate`. The build
-produces one self-contained script, `dist/svg-viewer.js`. It needs no JavaScript
+example the output of `mkdocs build` or `techdocs-cli generate`. The package
+contains one self-contained script, `dist/svg-viewer.js`. It needs no JavaScript
 toolchain in the docs repository.
 
-1. Build the add-on with `pnpm build`.
-2. Copy `dist/svg-viewer.js` to `docs/javascripts/svg-viewer.js` in the docs
-   repository. Alternatively, host the file once at an internal URL.
-3. Add the script to `mkdocs.yml`:
+1. Add the script to `mkdocs.yml`. The
+   [jsDelivr](https://www.jsdelivr.com/package/npm/@mwz/techdocs-mkdocs-svg-viewer)
+   CDN serves it from the npm package:
 
    ```yaml
    plugins:
@@ -250,11 +195,21 @@ toolchain in the docs repository.
      - inline-select-svg:
          pattern: '[.]inline[.]svg$'
    extra_javascript:
-     - javascripts/svg-viewer.js # or the hosted URL
+     - https://cdn.jsdelivr.net/npm/@mwz/techdocs-mkdocs-svg-viewer@0.2.0/dist/svg-viewer.js
    ```
 
-4. Preview with `techdocs-cli serve:mkdocs --no-docker` (or `mkdocs serve`),
+   Keep an exact version in the URL, so that a new release does not change your
+   site until you update it.
+
+2. Preview with `techdocs-cli serve:mkdocs --no-docker` (or `mkdocs serve`),
    then click a diagram.
+
+If your site cannot load scripts from a CDN, for example because of a
+Content-Security-Policy or an offline build, download `svg-viewer.js` from the
+URL above or from a
+[GitHub release](https://github.com/mwz/techdocs-mkdocs-svg-viewer/releases).
+Commit it as `docs/javascripts/svg-viewer.js` and use
+`javascripts/svg-viewer.js` in `extra_javascript`.
 
 The script installs the viewer on `document.body` with the default options.
 Material's instant navigation replaces the page content but keeps `<body>`, so
@@ -368,11 +323,74 @@ integration tests. CI runs the same checks on Node 24 and the current Node
 release, and archives browser traces on failure. Browser tests intercept example
 link destinations locally.
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for pull requests and releases.
+
+### Test changes in a local Backstage app
+
+Add this checkout to your Backstage app as a folder-based `file:` dependency.
+This works with Yarn 1 (Classic) and Yarn 2–4. Yarn copies the folder into the
+app's `node_modules`, so the add-on's peer dependencies (React and the Backstage
+packages) resolve to the app's copies.
+
+Do not use a `portal:` or `link:` dependency. Both create a symlink to this
+checkout. The Backstage bundler follows the symlink, so the add-on then imports
+`react` and `@backstage/*` from this checkout's `node_modules`, which contains
+its development dependencies. The page then has two copies of React and of the
+Backstage API context, and TechDocs fails with
+`TypeError: Cannot read properties of null (reading 'useContext')`.
+
+The commands below assume sibling checkouts named `backstage` and
+`techdocs-mkdocs-svg-viewer`. Adjust the paths for your layout.
+
+In the add-on checkout, install dependencies and build:
+
+```sh
+cd techdocs-mkdocs-svg-viewer
+mise install
+pnpm install --frozen-lockfile
+pnpm build
+```
+
+From `backstage/packages/app`, add the local package:
+
+```sh
+yarn add '@mwz/techdocs-mkdocs-svg-viewer@file:../../../techdocs-mkdocs-svg-viewer'
+```
+
+The relative path is measured from `packages/app`, not the Backstage repository
+root. Register the add-on using the [legacy frontend](#legacy-frontend) or
+[new frontend system](#new-frontend-system) instructions, then start Backstage
+with your usual development command.
+
+The installed copy does not change when you rebuild the add-on. After each
+change, run `pnpm build` in the add-on checkout, then run `yarn install` in the
+Backstage app to copy it again, and restart Backstage. `pnpm dev` runs the
+standalone demo and does not replace this step.
+
+Keep the local dependency and associated lockfile changes out of shared
+Backstage commits, since CI and other developers may not have the neighbouring
+checkout. When finished, restore the previous dependency and run `yarn install`,
+or use `yarn remove @mwz/techdocs-mkdocs-svg-viewer` from `packages/app` if it
+was added only for this test, and remove its registration.
+
+The copy includes the whole checkout, not only the published files. To check the
+exact package contents that will be published, pack a tarball and add that
+instead:
+
+```sh
+# In the add-on checkout:
+pnpm pack --out ../techdocs-mkdocs-svg-viewer.tgz
+
+# From the root of your Backstage app; adjust the path to the tarball:
+yarn --cwd packages/app add file:../../../techdocs-mkdocs-svg-viewer.tgz
+```
+
 ## Upstream integration references
 
 - [TechDocs addons (new frontend)](https://backstage.io/docs/features/techdocs/addons/)
 - [TechDocs addons (legacy frontend)](https://backstage.io/docs/features/techdocs/addons--old/)
 - [Inline-select-svg plugin](https://github.com/temperlang/svg-inline-mkdocs-plugin)
 
-This is private, unlicensed project code. No public publishing workflow is
-enabled.
+## License
+
+Copyright 2026 mwz. Licensed under the [Apache License, Version 2.0](LICENSE).
