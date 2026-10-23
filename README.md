@@ -311,17 +311,28 @@ original whole-image link remains available on the page. Individual links
 The viewer temporarily moves the original SVG into a native dialog in the same
 shadow root. Keeping a single node avoids duplicate IDs and broken references
 between `<defs>`, gradients, markers and `<use>`. It snapshots presentation
-styles that depend on the original ancestors, then restores original inline
-styles and placement on close. No fetched SVG/HTML is parsed or injected by the
-viewer; the demo alone parses its checked-in, trusted fixture.
+styles before the move, from a temporary copy in the same place. The copy is not
+under the pointer, so hover styles active at the click are not captured. After
+the move, it sets inline only the values that changed because the SVG left its
+original ancestors, such as inherited fonts and colours. It restores the
+original inline styles and placement on close. No fetched SVG/HTML is parsed or
+injected by the viewer; the demo alone parses its checked-in, trusted fixture.
 
 Existing `viewBox` values, including negative origins, are preserved. SVGs
 without a viewBox receive a temporary one based on their rendered viewport.
 Fixed-size diagrams are the primary use case; SVGs whose geometry itself depends
 on dynamic ancestor CSS, animations or interactive form controls may need a
-custom selector or an opt-out. Hover-driven presentation styles are frozen
-during expansion. Existing source layout problems such as duplicate IDs between
-different SVGs are not repaired by this addon.
+custom selector or an opt-out.
+
+Hover and other interactive styles in the same shadow root, for example from a
+custom styles addon, also apply in the viewer. An `!important` rule always
+applies. A rule without `!important` applies to a property only if the viewer
+did not set that property inline on the element. Rules that depend on the
+original ancestors, such as `.md-typeset svg a:hover`, no longer match in the
+viewer.
+
+Existing source layout problems such as duplicate IDs between different SVGs are
+not repaired by this addon.
 
 TechDocs remains responsible for sanitisation and routing. Relative URLs must
 already be correct in the rendered document; the viewer cannot recover the

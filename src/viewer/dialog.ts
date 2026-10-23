@@ -18,7 +18,7 @@ export interface ViewerHandle {
   placeholder: HTMLElement;
 }
 
-// Freeze context-dependent presentation before moving the SAME node. This keeps
+// Snapshot context-dependent presentation before moving the SAME node. This keeps
 // IDs, definitions, DOM listeners and native links without cloning/reparsing HTML.
 const presentation = [
   'color',
@@ -96,20 +96,43 @@ export function openViewer(
   const size = contentSize(source);
   const sourceRect = source.getBoundingClientRect();
   const savedStyles = new Map<SVGElement, string | null>();
-  const snapshots: Array<[SVGElement, Array<[string, string]>]> = [];
-  for (const node of [source, ...source.querySelectorAll<SVGElement>('*')]) {
-    if (!(node instanceof SVGElement)) continue;
+  const snapshots = new Map<Element, Array<[string, string]>>();
+  // Read the snapshot from a copy that takes the SVG's place for a moment. It
+  // has the same ancestors and siblings but is not under the pointer, so
+  // `:hover` styles from the click that opened the viewer are not captured.
+  const probe = source.cloneNode(true) as SVGSVGElement;
+  source.replaceWith(probe);
+  const copies = [probe, ...probe.querySelectorAll('*')];
+  [source, ...source.querySelectorAll('*')].forEach((node, index) => {
+    if (!(node instanceof SVGElement)) return;
     savedStyles.set(node, node.getAttribute('style'));
-    const computed = win.getComputedStyle(node);
-    snapshots.push([
+    const computed = win.getComputedStyle(copies[index]!);
+    snapshots.set(
       node,
       presentation.map((key) => [key, computed.getPropertyValue(key)]),
-    ]);
-  }
-  for (const [node, properties] of snapshots) {
-    for (const [key, value] of properties)
-      if (value) node.style.setProperty(key, value, 'important');
-  }
+    );
+  });
+  probe.replaceWith(source);
+  // After the move, restore only the values that changed, parents first so that
+  // children inherit them again. Reading a whole tree level before writing it
+  // keeps style recalculation to one per level. Values are inline but not
+  // !important, so `:hover` and other rules in the same root still apply to
+  // the diagram: `!important` rules always, other rules where nothing changed.
+  const restorePresentation = () => {
+    let level: Element[] = [source];
+    while (level.length) {
+      const changes = level.map((node) => {
+        const computed = win.getComputedStyle(node);
+        const changed = (snapshots.get(node) ?? []).filter(
+          ([key, value]) => value && computed.getPropertyValue(key) !== value,
+        );
+        return [node as SVGElement, changed] as const;
+      });
+      for (const [node, changed] of changes)
+        for (const [key, value] of changed) node.style.setProperty(key, value);
+      level = level.flatMap((node) => [...node.children]);
+    }
+  };
   const placeholder = doc.createElement('span');
   placeholder.setAttribute('aria-hidden', 'true');
   placeholder.style.cssText = `display:inline-block;width:${sourceRect.width}px;height:${sourceRect.height}px;visibility:hidden`;
@@ -284,6 +307,7 @@ export function openViewer(
   }
   canvas.append(source);
   root.append(dialog);
+  restorePresentation();
 
   // Pointer capture begins only AFTER movement, otherwise a simple click on an
   // SVG <a> gets retargeted to the canvas and its native navigation is lost.

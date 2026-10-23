@@ -17,6 +17,11 @@
 - The viewer closes when TechDocs routes a link clicked in it, including
   same-page `#fragment` links, which fire no `hashchange`.
 - Mermaid diagrams are skipped.
+- Hover and other interactive styles in the TechDocs shadow root, for example
+  from a custom styles addon, now apply in the viewer. The viewer no longer sets
+  every presentation property inline as `!important`. It sets inline only the
+  values that changed when the SVG moved into the viewer. Hover styles that are
+  active when you click to open the viewer do not stay on in the viewer.
 - `dist/svg-viewer.js`: a self-contained drop-in script for MkDocs sites outside
   Backstage, loaded with `extra_javascript`.
 - `pnpm example:serve` previews `examples/mkdocs` with the drop-in script via

@@ -54,6 +54,57 @@ test('opens from a diagram background and restores the exact original node and s
   ).toBeFocused();
 });
 
+test('hover styles from the TechDocs shadow root still apply in the viewer', async ({
+  page,
+}) => {
+  await page.goto('/');
+  // Like a TechdocsCustomStyles addon: an !important rule and a plain rule.
+  await page.locator('#architecture').evaluate((svg) => {
+    const style = document.createElement('style');
+    style.textContent =
+      'a:hover > rect { stroke: rgb(76, 175, 80) !important; } a:hover > .node-label { fill: rgb(76, 175, 80); }';
+    (svg.getRootNode() as ShadowRoot).append(style);
+  });
+  await page
+    .getByRole('button', {
+      name: 'Expand Order processing architecture',
+      exact: true,
+    })
+    .click();
+  const link = page.locator('.tdsv a[aria-label="Read order service guide"]');
+  const rect = link.locator('rect');
+  const label = link.locator('.node-label');
+  await expect(rect).toHaveCSS('stroke', 'rgb(140, 169, 216)');
+  await expect(label).toHaveCSS('fill', 'rgb(34, 49, 77)');
+  await expect(label).toHaveCSS('font-weight', '600');
+  await rect.hover();
+  await expect(rect).toHaveCSS('stroke', 'rgb(76, 175, 80)');
+  await expect(label).toHaveCSS('fill', 'rgb(76, 175, 80)');
+  await page.locator('.tdsv-title').hover();
+  await expect(rect).toHaveCSS('stroke', 'rgb(140, 169, 216)');
+  await expect(label).toHaveCSS('fill', 'rgb(34, 49, 77)');
+});
+
+test('a hover style active when the viewer opens does not stick', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.locator('#architecture').evaluate((svg) => {
+    const style = document.createElement('style');
+    style.textContent =
+      'rect[x="570"][y="100"]:hover { stroke: rgb(76, 175, 80) !important; stroke-width: 7 !important; }';
+    (svg.getRootNode() as ShadowRoot).append(style);
+  });
+  const rect = page.locator('#architecture rect[x="570"][y="100"]');
+  await rect.hover({ position: { x: 10, y: 10 } });
+  await expect(rect).toHaveCSS('stroke', 'rgb(76, 175, 80)');
+  await rect.click({ position: { x: 10, y: 10 } });
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.locator('.tdsv-title').hover();
+  await expect(rect).toHaveCSS('stroke', 'rgb(141, 187, 164)');
+  await expect(rect).toHaveCSS('stroke-width', '1px');
+});
+
 test('ignores theme icons and opt-outs; whole-image links get an independent expand button', async ({
   page,
 }) => {
