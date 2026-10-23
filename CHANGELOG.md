@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Renamed the repository to `techdocs-mkdocs-svg-viewer` and the package to
+  `@mwz/techdocs-mkdocs-svg-viewer`, because it supports standalone MkDocs sites
+  as well as Backstage TechDocs. Update the dependency and imports in your
+  Backstage app. The Backstage plugin ID `techdocs-addon-svg-viewer` is
+  unchanged.
+- All peer dependencies are optional, so the `/viewer` entry point can be used
+  without React or Backstage packages.
 - Links with only `xlink:href` get a resolved `href`, so TechDocs routes them
   in-app instead of reloading the page (`resolveXlinkHref`, on in the addon).
 - The viewer closes when TechDocs routes a link clicked in it, including

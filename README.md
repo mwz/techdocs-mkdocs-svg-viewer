@@ -1,13 +1,22 @@
-# Backstage TechDocs SVG viewer
+# Backstage TechDocs & MkDocs SVG viewer
 
 Click an inline SVG diagram to open a full-window, accessible viewer with zoom,
 mouse/touch panning, directional buttons and optional browser fullscreen.
 
 Designed for SVGs embedded by
-[mkdocs-inline-select-svg-plugin](https://pypi.org/project/mkdocs-inline-select-svg-plugin/).
-The viewer uses the original inline SVG, so embedded links, text, gradients,
-markers, IDs and event listeners remain available. It does not rasterise the SVG
-or turn it into an `<img>`.
+[mkdocs-inline-select-svg-plugin](https://pypi.org/project/mkdocs-inline-select-svg-plugin/)
+and similar plugins. The viewer uses the original inline SVG, so embedded links,
+text, gradients, markers, IDs and event listeners remain available. It does not
+rasterise the SVG or turn it into an `<img>`.
+
+There are two ways to use it:
+
+- **Backstage TechDocs:** install the package and register the addon. See
+  [Legacy frontend](#legacy-frontend) or
+  [New frontend system](#new-frontend-system).
+- **MkDocs site outside Backstage:** load the self-contained `svg-viewer.js`
+  with `extra_javascript`. No JavaScript toolchain is needed. See
+  [Standalone MkDocs site](#standalone-mkdocs-site-outside-backstage).
 
 ## Behaviour
 
@@ -53,6 +62,9 @@ Older Backstage versions may work with the legacy entry point, but are not
 claimed as tested. React 19 is not included in this initial peer range because
 the verified TechDocs package declares React 17/18 support.
 
+All peer dependencies are optional, so the `/viewer` entry point can be used
+without React or Backstage packages. A Backstage app already has them.
+
 The package targets Node 24 LTS (`engines.node >=24`). Build your Backstage app
 on Node 24 or later. Yarn 1 refuses to install the package on older Node
 versions.
@@ -71,15 +83,15 @@ publication. For an editable local checkout, see
 packaged build, create a tarball and add it to your Backstage app:
 
 ```sh
-git clone git@github.com:mwz/backstage-techdocs-addon-svg-viewer.git
-cd backstage-techdocs-addon-svg-viewer
+git clone git@github.com:mwz/techdocs-mkdocs-svg-viewer.git
+cd techdocs-mkdocs-svg-viewer
 mise install
 pnpm install --frozen-lockfile
 pnpm build
-pnpm pack --out ../techdocs-svg-viewer-0.1.0.tgz
+pnpm pack --out ../techdocs-mkdocs-svg-viewer-0.1.0.tgz
 
 # From the root of your Backstage app; adjust the path to the tarball:
-yarn --cwd packages/app add file:../../../techdocs-svg-viewer-0.1.0.tgz
+yarn --cwd packages/app add file:../../../techdocs-mkdocs-svg-viewer-0.1.0.tgz
 ```
 
 The tarball includes ESM, CommonJS and TypeScript declarations. You can also
@@ -96,12 +108,12 @@ folder-based `file:` dependency, a portal does not copy the package, so rebuilt
 files are available without repacking or reinstalling.
 
 The commands below assume sibling checkouts named `backstage` and
-`backstage-techdocs-addon-svg-viewer`. Adjust the paths for your layout.
+`techdocs-mkdocs-svg-viewer`. Adjust the paths for your layout.
 
 In the add-on checkout, install dependencies and start the build watcher:
 
 ```sh
-cd backstage-techdocs-addon-svg-viewer
+cd techdocs-mkdocs-svg-viewer
 mise install
 pnpm install --frozen-lockfile
 pnpm exec tsup --watch
@@ -111,7 +123,7 @@ Wait for the initial JavaScript and TypeScript declaration builds to finish. In
 another terminal, from `backstage/packages/app`, add the local package:
 
 ```sh
-yarn add '@mwz/backstage-techdocs-addon-svg-viewer@portal:../../../backstage-techdocs-addon-svg-viewer'
+yarn add '@mwz/techdocs-mkdocs-svg-viewer@portal:../../../techdocs-mkdocs-svg-viewer'
 ```
 
 The relative path is measured from `packages/app`, not the Backstage repository
@@ -126,15 +138,15 @@ change. `pnpm dev` runs the standalone demo and does not replace this watcher.
 Keep the local dependency and associated lockfile changes out of shared
 Backstage commits, since CI and other developers may not have the neighbouring
 checkout. When finished, restore the previous dependency and run `yarn install`,
-or use `yarn remove @mwz/backstage-techdocs-addon-svg-viewer` from
-`packages/app` if it was added only for this test, and remove its registration.
+or use `yarn remove @mwz/techdocs-mkdocs-svg-viewer` from `packages/app` if it
+was added only for this test, and remove its registration.
 
 For Yarn 1 (Classic), `portal:` is unavailable. For a one-off test, run
 `pnpm build` in the add-on checkout, then add the directory from
 `backstage/packages/app`:
 
 ```sh
-yarn add '@mwz/backstage-techdocs-addon-svg-viewer@file:../../../backstage-techdocs-addon-svg-viewer'
+yarn add '@mwz/techdocs-mkdocs-svg-viewer@file:../../../techdocs-mkdocs-svg-viewer'
 ```
 
 This avoids creating a tarball, but copies the package. Rebuilding the source
@@ -149,7 +161,7 @@ Add `SvgViewer` to the existing `TechDocsAddons` registry in your reader route:
 ```tsx
 import { TechDocsReaderPage } from '@backstage/plugin-techdocs';
 import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
-import { SvgViewer } from '@mwz/backstage-techdocs-addon-svg-viewer';
+import { SvgViewer } from '@mwz/techdocs-mkdocs-svg-viewer';
 
 <Route path="/docs/:namespace/:kind/:name/*" element={<TechDocsReaderPage />}>
   <TechDocsAddons>
@@ -177,7 +189,7 @@ Add the module to your app's existing `features` list:
 
 ```tsx
 import { createApp } from '@backstage/frontend-defaults';
-import { techDocsSvgViewerModule } from '@mwz/backstage-techdocs-addon-svg-viewer/alpha';
+import { techDocsSvgViewerModule } from '@mwz/techdocs-mkdocs-svg-viewer/alpha';
 
 const app = createApp({
   features: [
@@ -259,7 +271,7 @@ To use custom options, or to bundle the viewer with your own site JavaScript,
 import the controller instead:
 
 ```ts
-import { installSvgViewer } from '@mwz/backstage-techdocs-addon-svg-viewer/viewer';
+import { installSvgViewer } from '@mwz/techdocs-mkdocs-svg-viewer/viewer';
 const dispose = installSvgViewer(document.body, { maxZoom: 32 });
 ```
 

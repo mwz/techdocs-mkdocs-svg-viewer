@@ -1,13 +1,21 @@
 {
-  "name": "@mwz/backstage-techdocs-addon-svg-viewer",
+  "name": "@mwz/techdocs-mkdocs-svg-viewer",
   "version": "0.1.0",
-  "description": "Accessible fullscreen pan and zoom for inline SVG diagrams in Backstage TechDocs",
+  "description": "Accessible full-window pan and zoom for inline SVG diagrams in Backstage TechDocs and MkDocs sites",
+  "keywords": [
+    "backstage",
+    "techdocs",
+    "mkdocs",
+    "svg",
+    "diagram",
+    "pan-zoom"
+  ],
   "private": true,
   "license": "UNLICENSED",
   "author": "Michael Wizner",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mwz/backstage-techdocs-addon-svg-viewer.git"
+    "url": "https://github.com/mwz/techdocs-mkdocs-svg-viewer.git"
   },
   "type": "module",
   "main": "./dist/index.cjs",
@@ -68,7 +76,16 @@
     "react": "^18.2.0"
   },
   "peerDependenciesMeta": {
+    "@backstage/core-plugin-api": {
+      "optional": true
+    },
     "@backstage/frontend-plugin-api": {
+      "optional": true
+    },
+    "@backstage/plugin-techdocs-react": {
+      "optional": true
+    },
+    "react": {
       "optional": true
     }
   },
