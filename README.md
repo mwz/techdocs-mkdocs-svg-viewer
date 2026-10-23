@@ -101,39 +101,44 @@ uses pnpm and mise for development.
 
 ### Local testing without a tarball
 
-For a Backstage app using Yarn 2–4, use a
-[`portal:` dependency](https://yarnpkg.com/protocol/portal) to reference this
-checkout directly. Check your app's Yarn version with `yarn --version`. Unlike a
-folder-based `file:` dependency, a portal does not copy the package, so rebuilt
-files are available without repacking or reinstalling.
+Add this checkout to your Backstage app as a folder-based `file:` dependency.
+This works with Yarn 1 (Classic) and Yarn 2–4. Yarn copies the folder into the
+app's `node_modules`, so the add-on's peer dependencies (React and the Backstage
+packages) resolve to the app's copies.
+
+Do not use a `portal:` or `link:` dependency. Both create a symlink to this
+checkout. The Backstage bundler follows the symlink, so the add-on then imports
+`react` and `@backstage/*` from this checkout's `node_modules`, which contains
+its development dependencies. The page then has two copies of React and of the
+Backstage API context, and TechDocs fails with
+`TypeError: Cannot read properties of null (reading 'useContext')`.
 
 The commands below assume sibling checkouts named `backstage` and
 `techdocs-mkdocs-svg-viewer`. Adjust the paths for your layout.
 
-In the add-on checkout, install dependencies and start the build watcher:
+In the add-on checkout, install dependencies and build:
 
 ```sh
 cd techdocs-mkdocs-svg-viewer
 mise install
 pnpm install --frozen-lockfile
-pnpm exec tsup --watch
+pnpm build
 ```
 
-Wait for the initial JavaScript and TypeScript declaration builds to finish. In
-another terminal, from `backstage/packages/app`, add the local package:
+From `backstage/packages/app`, add the local package:
 
 ```sh
-yarn add '@mwz/techdocs-mkdocs-svg-viewer@portal:../../../techdocs-mkdocs-svg-viewer'
+yarn add '@mwz/techdocs-mkdocs-svg-viewer@file:../../../techdocs-mkdocs-svg-viewer'
 ```
 
 The relative path is measured from `packages/app`, not the Backstage repository
 root. Register the add-on using the legacy or new frontend instructions below,
 then start Backstage with your usual development command.
 
-Keep the watcher running while editing the add-on: its exports point to compiled
-files in `dist`, rather than directly to `src`. Refresh the page after a
-rebuild; restart Backstage if its development server does not pick up the
-change. `pnpm dev` runs the standalone demo and does not replace this watcher.
+The installed copy does not change when you rebuild the add-on. After each
+change, run `pnpm build` in the add-on checkout, then run `yarn install` in the
+Backstage app to copy it again, and restart Backstage. `pnpm dev` runs the
+standalone demo and does not replace this step.
 
 Keep the local dependency and associated lockfile changes out of shared
 Backstage commits, since CI and other developers may not have the neighbouring
@@ -141,18 +146,9 @@ checkout. When finished, restore the previous dependency and run `yarn install`,
 or use `yarn remove @mwz/techdocs-mkdocs-svg-viewer` from `packages/app` if it
 was added only for this test, and remove its registration.
 
-For Yarn 1 (Classic), `portal:` is unavailable. For a one-off test, run
-`pnpm build` in the add-on checkout, then add the directory from
-`backstage/packages/app`:
-
-```sh
-yarn add '@mwz/techdocs-mkdocs-svg-viewer@file:../../../techdocs-mkdocs-svg-viewer'
-```
-
-This avoids creating a tarball, but copies the package. Rebuilding the source
-does not update that installed copy; refresh the installed dependency before
-retesting. Use the tarball workflow above when you want to check the exact
-package contents that will be distributed.
+The copy includes the whole checkout, not only the published files. Use the
+tarball workflow above when you want to check the exact package contents that
+will be distributed.
 
 ### Legacy frontend
 
