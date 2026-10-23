@@ -1,49 +1,58 @@
 # Backstage TechDocs & MkDocs SVG viewer
 
-Click an inline SVG diagram to open a full-window, accessible viewer with zoom,
-mouse/touch panning, directional buttons and optional browser fullscreen.
+Click an inline SVG diagram to open it in a full-window, accessible viewer. The
+viewer has zoom, mouse and touch panning, direction buttons and an optional
+browser fullscreen mode.
 
-Designed for SVGs embedded by
+The viewer is for SVGs that
 [mkdocs-inline-select-svg-plugin](https://pypi.org/project/mkdocs-inline-select-svg-plugin/)
-and similar plugins. The viewer uses the original inline SVG, so embedded links,
-text, gradients, markers, IDs and event listeners remain available. It does not
-rasterise the SVG or turn it into an `<img>`.
+and similar plugins embed in the page. The viewer uses the original inline SVG,
+so embedded links, text, gradients, markers, IDs and event listeners stay
+available. The viewer does not rasterise the SVG or change it into an `<img>`.
 
-There are two ways to use it:
+There are two ways to use the viewer:
 
-- **Backstage TechDocs:** install the package and register the addon. See
+- **Backstage TechDocs:** Install the package and register the addon. See
   [Legacy frontend](#legacy-frontend) or
   [New frontend system](#new-frontend-system).
-- **MkDocs site outside Backstage:** load the self-contained `svg-viewer.js`
-  from a CDN with `extra_javascript`. No JavaScript toolchain is needed. See
-  [Standalone MkDocs site](#standalone-mkdocs-site-outside-backstage).
+- **MkDocs site outside Backstage:** Load the self-contained `svg-viewer.js`
+  from a CDN with `extra_javascript`. You do not need a JavaScript toolchain.
+  See [Standalone MkDocs site](#standalone-mkdocs-site-outside-backstage).
 
 ## Behaviour
 
-- Click an **unlinked** diagram area, or its **Expand diagram** button, to open.
-- Links take priority over opening. Links keep their destinations, targets,
-  query strings, fragments and modifier-click behaviour.
-- TechDocs only resolves and routes links that use `href`. For a link with only
-  legacy `xlink:href`, which many exporters emit, the addon adds an `href` with
-  the resolved URL. TechDocs then navigates in-app instead of reloading the
-  page. Unmounting the addon removes the added attributes.
-- When TechDocs routes a link clicked in the viewer, including a `#fragment`
-  link on the same page, the viewer closes so that the destination is visible.
-- A mouse/touch drag pans, even when it starts on a linked node. Releasing a
-  drag does not follow the link; a normal click or keyboard activation does.
-- Wheel/trackpad and two-finger pinch zoom around the pointer/pinch centre.
-- `+`/`−` zoom, arrow keys pan, Shift+arrow pans farther, `0`/Home fits, Escape
-  closes. There are also labelled buttons for all essential operations.
-- The modal fills the **browser viewport** immediately. Its separate Fullscreen
-  button uses the browser Fullscreen API where supported; opening never requires
-  that permission or API.
-- Native `<dialog>` provides modal focus containment and background inertness.
-  Closing restores the SVG and returns keyboard focus to the expand button.
-- Small icons, nested SVG viewports, Material theme icon wrappers and Mermaid
-  diagrams (`.mermaid`, or an SVG `id` starting with `mermaid`) are skipped. The
-  Mermaid addon has its own zoom controls. A MutationObserver discovers diagrams
-  added by navigation or client rendering.
-- All processing stays in the page. There are no viewer services or telemetry.
+- To open the viewer, click an **unlinked** area of the diagram, or click its
+  **Expand diagram** button.
+- When you click a link, the link opens, not the viewer. Links keep their
+  destinations, targets, query strings, fragments and modifier-click behaviour.
+- TechDocs resolves and routes only links that use `href`. Many exporters write
+  links that have only the legacy `xlink:href`. For these links, the addon adds
+  an `href` with the resolved URL. TechDocs then navigates in the app and does
+  not reload the page. When the addon unmounts, it removes the attributes that
+  it added.
+- If TechDocs routes a link that you click in the viewer, the viewer closes so
+  that you can see the destination. This includes a `#fragment` link on the same
+  page.
+- A mouse or touch drag pans the diagram, also when the drag starts on a linked
+  node. When you release a drag, the link does not open. A normal click or
+  keyboard activation opens the link.
+- The wheel, the trackpad and a two-finger pinch zoom around the pointer or the
+  pinch centre.
+- Keyboard: `+`/`−` zoom, arrow keys pan, Shift+arrow pans farther, `0`/Home
+  fits the diagram, and Escape closes the viewer. Labelled buttons are also
+  available for all essential operations.
+- The viewer fills the **browser viewport** immediately. A separate Fullscreen
+  button uses the browser Fullscreen API when the browser supports it. The
+  viewer does not need this API or permission to open.
+- The native `<dialog>` element keeps focus in the viewer and makes the page
+  behind it inert. When the viewer closes, it restores the SVG to the page and
+  returns keyboard focus to the expand button.
+- The viewer skips small icons, nested SVG viewports, Material theme icon
+  wrappers and Mermaid diagrams (`.mermaid`, or an SVG `id` that starts with
+  `mermaid`). The Mermaid addon has its own zoom controls.
+- A MutationObserver finds diagrams that navigation or client rendering adds to
+  the page.
+- All processing stays in the page. The viewer has no services and no telemetry.
 
 ## Compatibility
 
@@ -56,36 +65,36 @@ The implementation is type-checked against these exact Backstage packages:
 | `@backstage/frontend-plugin-api` (new frontend only) | `0.18.2`  |
 | React                                                | `18.3.1`  |
 
-Use the versions aligned with your Backstage release. The `/alpha` entry point
-uses Backstage's alpha `AddonBlueprint` API, which can change between releases.
-Older Backstage versions may work with the legacy entry point, but are not
-claimed as tested. React 19 is not included in this initial peer range because
-the verified TechDocs package declares React 17/18 support.
+Use the versions that align with your Backstage release. The `/alpha` entry
+point uses the alpha `AddonBlueprint` API of Backstage. This API can change
+between releases. Older Backstage versions can work with the legacy entry point,
+but we did not test them. The peer range does not include React 19, because the
+tested TechDocs package declares support for React 17 and 18 only.
 
-All peer dependencies are optional, so the `/viewer` entry point can be used
-without React or Backstage packages. A Backstage app already has them.
+All peer dependencies are optional. Thus you can use the `/viewer` entry point
+without React or Backstage packages. A Backstage app already has these packages.
 
 The package targets Node 24 LTS (`engines.node >=24`). Build your Backstage app
-on Node 24 or later. Yarn 1 refuses to install the package on older Node
-versions.
+on Node 24 or later. On older Node versions, Yarn 1 refuses to install the
+package.
 
-Requires a modern browser supporting native dialog, Pointer Events,
-ResizeObserver and shadow DOM. Chromium browser tests exercise real native SVG
+The viewer needs a modern browser that supports native dialog, Pointer Events,
+ResizeObserver and shadow DOM. Chromium browser tests cover real native SVG
 navigation, mouse, keyboard and touch. This repository is not a complete
-Backstage app: smoke-test the integration in your own TechDocs instance before
-rolling it out.
+Backstage app. Before you roll out the addon, test it in your own TechDocs
+instance.
 
 ## Install
 
-From the root of your Backstage app:
+From the root of your Backstage app, run:
 
 ```sh
 yarn --cwd packages/app add @mwz/techdocs-mkdocs-svg-viewer
 ```
 
-The package includes ESM, CommonJS and TypeScript declarations. Then register
-the addon for the [legacy frontend](#legacy-frontend) or the
-[new frontend system](#new-frontend-system).
+Then register the addon for the [legacy frontend](#legacy-frontend) or the
+[new frontend system](#new-frontend-system). The package includes ESM, CommonJS
+and TypeScript declarations.
 
 To try unreleased changes from `main`, install a snapshot with the `next` tag:
 
@@ -93,8 +102,8 @@ To try unreleased changes from `main`, install a snapshot with the `next` tag:
 yarn --cwd packages/app add @mwz/techdocs-mkdocs-svg-viewer@next
 ```
 
-CI publishes a snapshot, for example `0.2.1-main.42.gabc1234`, when a change to
-the package source is merged to `main`. Snapshots are not stable releases.
+When a change to the package source merges to `main`, CI publishes a snapshot,
+for example `0.2.1-main.42.gabc1234`. Snapshots are not stable releases.
 
 ### Legacy frontend
 
@@ -113,7 +122,7 @@ import { SvgViewer } from '@mwz/techdocs-mkdocs-svg-viewer';
 </Route>;
 ```
 
-Also register it on the entity documentation tab if you use that surface:
+If you use the entity documentation tab, also register the addon there:
 
 ```tsx
 import { EntityTechdocsContent } from '@backstage/plugin-techdocs';
@@ -127,7 +136,7 @@ import { EntityTechdocsContent } from '@backstage/plugin-techdocs';
 
 ### New frontend system
 
-Add the module to your app's existing `features` list:
+Add the module to the existing `features` list of your app:
 
 ```tsx
 import { createApp } from '@backstage/frontend-defaults';
@@ -142,21 +151,24 @@ const app = createApp({
 ```
 
 For custom options, use `createTechDocsSvgViewerModule({ maxZoom: 32 })` instead
-of the default module. Install exactly one registration per TechDocs surface; do
-not combine the legacy addon and the new frontend module on the same reader.
+of the default module.
+
+Register the viewer only one time for each TechDocs surface. Do not use the
+legacy addon and the new frontend module on the same reader.
 
 The package declares itself as a TechDocs module (`frontend-plugin-module` for
-`techdocs`), with the default module exported from `./alpha`. If your app uses
-feature discovery (`app.packages` in `app-config.yaml`), the module is installed
-automatically. Do not also add it to `features`. To use custom options with
-discovery, exclude this package from discovery and add
-`createTechDocsSvgViewerModule(...)` to `features` instead. Check the Backstage
-feature discovery documentation for your release, because this configuration can
-change.
+`techdocs`). It exports the default module from `./alpha`. If your app uses
+feature discovery (`app.packages` in `app-config.yaml`), discovery installs the
+module automatically. In this case, do not also add the module to `features`.
+
+To use custom options with discovery, exclude this package from discovery. Then
+add `createTechDocsSvgViewerModule(...)` to `features`. The discovery
+configuration can change between releases. Read the Backstage feature discovery
+documentation for your release.
 
 ## MkDocs configuration
 
-Keep your existing inline plugin setup, for example:
+Keep your existing inline plugin configuration, for example:
 
 ```yaml
 plugins:
@@ -169,25 +181,25 @@ plugins:
 ![Order processing](architecture.inline.svg)
 ```
 
-The Python plugin runs during the documentation build; this addon runs in the
-Backstage frontend. Nothing needs to be added to each SVG. The inline plugin
-uses SVG `<title>` rather than Markdown alt text, so meaningful titles improve
-the button and dialog labels.
+The Python plugin runs when MkDocs builds the documentation. This addon runs in
+the Backstage frontend. You do not need to add anything to each SVG. The inline
+plugin uses the SVG `<title>`, not the Markdown alt text. A meaningful title
+gives better labels for the button and the viewer.
 
-A small, runnable MkDocs fixture is in `examples/mkdocs`. The `dev` demo
-exercises the same SVG with relative `xlink:href`, an external link, a fragment,
-a non-zero viewBox origin and gradient/marker references.
+`examples/mkdocs` contains a small MkDocs fixture that you can run. The `dev`
+demo uses the same SVG. This SVG has a relative `xlink:href`, an external link,
+a fragment, a non-zero viewBox origin, and gradient and marker references.
 
 ## Standalone MkDocs site (outside Backstage)
 
 The viewer also works on a MkDocs site that you host without Backstage, for
 example the output of `mkdocs build` or `techdocs-cli generate`. The package
-contains one self-contained script, `dist/svg-viewer.js`. It needs no JavaScript
-toolchain in the docs repository.
+contains one self-contained script, `dist/svg-viewer.js`. The docs repository
+does not need a JavaScript toolchain.
 
 1. Add the script to `mkdocs.yml`. The
    [jsDelivr](https://www.jsdelivr.com/package/npm/@mwz/techdocs-mkdocs-svg-viewer)
-   CDN serves it from the npm package:
+   CDN serves the script from the npm package:
 
    ```yaml
    plugins:
@@ -198,37 +210,40 @@ toolchain in the docs repository.
      - https://cdn.jsdelivr.net/npm/@mwz/techdocs-mkdocs-svg-viewer@0.2.0/dist/svg-viewer.js
    ```
 
-   Keep an exact version in the URL, so that a new release does not change your
-   site until you update it.
+   Keep an exact version in the URL. Then a new release does not change your
+   site until you update the URL.
 
-2. Preview with `techdocs-cli serve:mkdocs --no-docker` (or `mkdocs serve`),
-   then click a diagram.
+2. Preview the site with `techdocs-cli serve:mkdocs --no-docker` or
+   `mkdocs serve`.
+3. Click a diagram.
 
-If your site cannot load scripts from a CDN, for example because of a
-Content-Security-Policy or an offline build, download `svg-viewer.js` from the
-URL above or from a
-[GitHub release](https://github.com/mwz/techdocs-mkdocs-svg-viewer/releases).
-Commit it as `docs/javascripts/svg-viewer.js` and use
-`javascripts/svg-viewer.js` in `extra_javascript`.
+If your site cannot load scripts from a CDN (for example, because of a
+Content-Security-Policy or an offline build), use a local copy of the script:
+
+1. Download `svg-viewer.js` from the URL above, or from a
+   [GitHub release](https://github.com/mwz/techdocs-mkdocs-svg-viewer/releases).
+2. Commit the script as `docs/javascripts/svg-viewer.js`.
+3. In `extra_javascript`, use `javascripts/svg-viewer.js`.
 
 The script installs the viewer on `document.body` with the default options.
-Material's instant navigation replaces the page content but keeps `<body>`, so
-diagrams on later pages are enhanced too. The browser handles `href` and
-`xlink:href` links natively, so the script does not change links. To remove the
-viewer, call `window.disposeSvgViewer()`. Loading the script twice has no
-effect.
+Material instant navigation replaces the page content but keeps `<body>`. Thus
+the viewer also works on diagrams on later pages. The browser handles `href` and
+`xlink:href` links natively, so the script does not change links. If the page
+loads the script two times, the second load has no effect. To remove the viewer,
+call `window.disposeSvgViewer()`.
 
-You can keep the same `mkdocs.yml` for Backstage. TechDocs sanitises the HTML
-and removes `<script>` tags, so the script does not run there and the addon
-handles diagrams instead. Confirm that each diagram has only one **Expand
-diagram** button in your Backstage instance.
+You can use the same `mkdocs.yml` for Backstage. TechDocs sanitises the HTML and
+removes `<script>` tags. Thus the script does not run in Backstage, and the
+addon handles the diagrams. In your Backstage instance, make sure that each
+diagram has only one **Expand diagram** button.
 
-`examples/mkdocs` is set up this way. From the repository root, run
-`pnpm example:serve` to build the script, copy it into the example and serve the
-site with `techdocs-cli` through Poetry. See `examples/mkdocs/README.md`.
+`examples/mkdocs` uses this setup. To run it, use `pnpm example:serve` from the
+repository root. This command builds the script, copies it into the example, and
+serves the site with `techdocs-cli` through Poetry. For more information, see
+`examples/mkdocs/README.md`.
 
 To use custom options, or to bundle the viewer with your own site JavaScript,
-import the controller instead:
+import the controller:
 
 ```ts
 import { installSvgViewer } from '@mwz/techdocs-mkdocs-svg-viewer/viewer';
@@ -248,60 +263,70 @@ const dispose = installSvgViewer(document.body, { maxZoom: 32 });
 />
 ```
 
-| Option                  | Default                                      | Meaning                                                                 |
-| ----------------------- | -------------------------------------------- | ----------------------------------------------------------------------- |
-| `selector`              | `.md-content__inner svg, article svg`        | CSS selector within the TechDocs shadow root                            |
-| `minWidth`, `minHeight` | `80`, `40`                                   | Minimum rendered size in CSS pixels to avoid treating icons as diagrams |
-| `minZoom`, `maxZoom`    | `0.25`, `16`                                 | Bounds relative to Fit; `1` means 100% fit, not native pixel size       |
-| `resolveXlinkHref`      | `true` (addon), `false` (`installSvgViewer`) | Add a resolved `href` to links that only have `xlink:href`              |
+| Option                  | Default                                      | Meaning                                                                     |
+| ----------------------- | -------------------------------------------- | --------------------------------------------------------------------------- |
+| `selector`              | `.md-content__inner svg, article svg`        | CSS selector in the TechDocs shadow root                                    |
+| `minWidth`, `minHeight` | `80`, `40`                                   | Minimum rendered size in CSS pixels. The viewer skips smaller SVGs as icons |
+| `minZoom`, `maxZoom`    | `0.25`, `16`                                 | Zoom limits relative to Fit. `1` is 100% of Fit, not the native pixel size  |
+| `resolveXlinkHref`      | `true` (addon), `false` (`installSvgViewer`) | Add a resolved `href` to links that have only `xlink:href`                  |
 
-Put `data-svg-viewer="on"` on a small SVG to override size thresholds. Put
-`data-svg-viewer="off"` on an SVG or its containing element to exclude it. An
-SVG inside an HTML link gets a separate expand button outside that link; the
-original whole-image link remains available on the page. Individual links
-**inside** the SVG remain available in the viewer.
+To open a small SVG in the viewer, add `data-svg-viewer="on"` to the SVG. This
+attribute overrides the size limits. To exclude an SVG, add
+`data-svg-viewer="off"` to the SVG or to an element that contains it.
+
+If an SVG is inside an HTML link, the viewer adds a separate expand button
+outside that link. The link around the whole image stays available on the page.
+Links **inside** the SVG stay available in the viewer.
 
 ## Rendering and lifecycle notes
 
 The viewer temporarily moves the original SVG into a native dialog in the same
-shadow root. Keeping a single node avoids duplicate IDs and broken references
-between `<defs>`, gradients, markers and `<use>`. It snapshots presentation
-styles before the move, from a temporary copy in the same place. The copy is not
-under the pointer, so hover styles active at the click are not captured. After
-the move, it sets inline only the values that changed because the SVG left its
-original ancestors, such as inherited fonts and colours. It restores the
-original inline styles and placement on close. No fetched SVG/HTML is parsed or
-injected by the viewer; the demo alone parses its checked-in, trusted fixture.
+shadow root. Because only one node exists, there are no duplicate IDs.
+References between `<defs>`, gradients, markers and `<use>` also continue to
+work.
 
-Existing `viewBox` values, including negative origins, are preserved. SVGs
-without a viewBox receive a temporary one based on their rendered viewport.
-Fixed-size diagrams are the primary use case; SVGs whose geometry itself depends
-on dynamic ancestor CSS, animations or interactive form controls may need a
-custom selector or an opt-out.
+Before the move, the viewer records the presentation styles from a temporary
+copy of the SVG in the same position. The copy is not under the pointer, so the
+viewer does not record hover styles that were active at the click. After the
+move, the viewer sets inline only the values that changed because the SVG left
+its original ancestors, for example inherited fonts and colours. When the viewer
+closes, it restores the original inline styles and position.
 
-Hover and other interactive styles in the same shadow root, for example from a
-custom styles addon, also apply in the viewer. An `!important` rule always
-applies. A rule without `!important` applies to a property only if the viewer
-did not set that property inline on the element. Rules that depend on the
-original ancestors, such as `.md-typeset svg a:hover`, no longer match in the
+The viewer does not parse or inject fetched SVG or HTML. Only the demo parses
+its checked-in, trusted fixture.
+
+The viewer keeps existing `viewBox` values, including negative origins. If an
+SVG has no viewBox, the viewer gives it a temporary viewBox from its rendered
+viewport. The viewer is mainly for fixed-size diagrams. Some SVGs have geometry
+that depends on dynamic ancestor CSS, animations or interactive form controls.
+These SVGs can need a custom `selector`, or `data-svg-viewer="off"`.
+
+Hover styles and other interactive styles in the same shadow root also apply in
+the viewer, for example styles from a custom styles addon. An `!important` rule
+always applies. A rule without `!important` applies to a property only if the
+viewer did not set that property inline on the element. Rules that depend on the
+original ancestors, such as `.md-typeset svg a:hover`, do not match in the
 viewer.
 
-Existing source layout problems such as duplicate IDs between different SVGs are
-not repaired by this addon.
+This addon does not repair existing problems in the source, such as duplicate
+IDs between different SVGs.
 
-TechDocs remains responsible for sanitisation and routing. Relative URLs must
-already be correct in the rendered document; the viewer cannot recover the
-original `.svg` file's source path after inlining. TechDocs attaches a click
-listener to each link before addons mount. The viewer moves the original nodes,
-so these listeners stay attached in the viewer. The addon resolves `xlink:href`
-values the same way TechDocs resolves `href`: relative to the page URL, with a
-trailing `/` unless the path ends in `.html`. Test your app's routing
+TechDocs stays responsible for sanitisation and routing. Relative URLs must
+already be correct in the rendered document. After inlining, the viewer cannot
+find the source path of the original `.svg` file.
+
+TechDocs attaches a click listener to each link before addons mount. The viewer
+moves the original nodes, so these listeners stay attached in the viewer. The
+addon resolves `xlink:href` values in the same way that TechDocs resolves
+`href`: relative to the page URL, with a trailing `/` unless the path ends in
+`.html`. If your app customises routing, test the links with your
 customisations.
 
-The page behind the dialog is inert. The SVG is restored on close, route/hash
-navigation, content removal or addon unmount. A link with `target="_blank"`
-leaves the viewer open in the original tab. Browser-native fullscreen is
-optional and can be denied without losing the full-window viewer.
+The page behind the viewer is inert. The viewer restores the SVG when it closes,
+on route or hash navigation, when the content is removed, or when the addon
+unmounts. A link with `target="_blank"` opens a new tab, and the viewer stays
+open in the original tab. Browser-native fullscreen is optional. If the browser
+denies it, the full-window viewer still works.
 
 ## Development
 
@@ -314,14 +339,17 @@ pnpm format:check
 pnpm dev
 ```
 
-Open the Vite URL shown in the terminal. The demo offers page-replacement and
-mount/unmount controls for lifecycle testing. Add `?techdocs` to the URL to
-simulate TechDocs link handling. `/dev/standalone.html` loads the built
-`dist/svg-viewer.js` on a plain MkDocs-style page; run `pnpm build` first.
+Open the Vite URL that the terminal shows. The demo has controls to replace the
+page and to mount and unmount the addon, for lifecycle tests. To simulate the
+link handling of TechDocs, add `?techdocs` to the URL.
+
+`/dev/standalone.html` loads the built `dist/svg-viewer.js` on a plain
+MkDocs-style page. Before you open this page, run `pnpm build`.
+
 `pnpm check` runs TypeScript, geometry tests, production builds and Playwright
-integration tests. CI runs the same checks on Node 24 and the current Node
-release, and archives browser traces on failure. Browser tests intercept example
-link destinations locally.
+integration tests. CI runs the same checks on Node 24 and on the current Node
+release. When a check fails, CI archives the browser traces. Browser tests
+intercept example link destinations locally.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for pull requests and releases.
 
@@ -329,59 +357,72 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for pull requests and releases.
 
 Add this checkout to your Backstage app as a folder-based `file:` dependency.
 This works with Yarn 1 (Classic) and Yarn 2–4. Yarn copies the folder into the
-app's `node_modules`, so the add-on's peer dependencies (React and the Backstage
-packages) resolve to the app's copies.
+`node_modules` of the app. Thus the peer dependencies of the addon (React and
+the Backstage packages) resolve to the copies in the app.
 
-Do not use a `portal:` or `link:` dependency. Both create a symlink to this
-checkout. The Backstage bundler follows the symlink, so the add-on then imports
-`react` and `@backstage/*` from this checkout's `node_modules`, which contains
-its development dependencies. The page then has two copies of React and of the
-Backstage API context, and TechDocs fails with
-`TypeError: Cannot read properties of null (reading 'useContext')`.
+**CAUTION:** Do not use a `portal:` or `link:` dependency. If you do, TechDocs
+fails with `TypeError: Cannot read properties of null (reading 'useContext')`.
+
+Both of these dependency types create a symlink to this checkout. The Backstage
+bundler follows the symlink, so the addon imports `react` and `@backstage/*`
+from the `node_modules` of this checkout. That folder contains the development
+dependencies of the addon. As a result, the page has two copies of React and of
+the Backstage API context.
 
 The commands below assume sibling checkouts named `backstage` and
-`techdocs-mkdocs-svg-viewer`. Adjust the paths for your layout.
+`techdocs-mkdocs-svg-viewer`. If your layout is different, change the paths.
 
-In the add-on checkout, install dependencies and build:
+1. In the addon checkout, install the dependencies and build the package:
+
+   ```sh
+   cd techdocs-mkdocs-svg-viewer
+   mise install
+   pnpm install --frozen-lockfile
+   pnpm build
+   ```
+
+2. From `backstage/packages/app`, add the local package:
+
+   ```sh
+   yarn add '@mwz/techdocs-mkdocs-svg-viewer@file:../../../techdocs-mkdocs-svg-viewer'
+   ```
+
+   The relative path starts at `packages/app`, not at the root of the Backstage
+   repository.
+
+3. Register the addon. Use the instructions for the
+   [legacy frontend](#legacy-frontend) or the
+   [new frontend system](#new-frontend-system).
+4. Start Backstage with your usual development command.
+
+The installed copy does not change when you rebuild the addon. After each
+change, do these steps:
+
+1. In the addon checkout, run `pnpm build`.
+2. In the Backstage app, run `yarn install` to copy the package again.
+3. Restart Backstage.
+
+`pnpm dev` runs the standalone demo. It does not replace these steps.
+
+Keep the local dependency and its lockfile changes out of shared Backstage
+commits. CI and other developers usually do not have your sibling checkout. When
+you finish:
+
+- If the app used the package before this test, restore the previous dependency.
+  Then run `yarn install`.
+- If you added the package only for this test, run
+  `yarn remove @mwz/techdocs-mkdocs-svg-viewer` from `packages/app`. Then remove
+  the addon registration.
+
+The `file:` copy includes the whole checkout, not only the published files. To
+test the exact contents of the published package, pack a tarball and add the
+tarball instead:
 
 ```sh
-cd techdocs-mkdocs-svg-viewer
-mise install
-pnpm install --frozen-lockfile
-pnpm build
-```
-
-From `backstage/packages/app`, add the local package:
-
-```sh
-yarn add '@mwz/techdocs-mkdocs-svg-viewer@file:../../../techdocs-mkdocs-svg-viewer'
-```
-
-The relative path is measured from `packages/app`, not the Backstage repository
-root. Register the add-on using the [legacy frontend](#legacy-frontend) or
-[new frontend system](#new-frontend-system) instructions, then start Backstage
-with your usual development command.
-
-The installed copy does not change when you rebuild the add-on. After each
-change, run `pnpm build` in the add-on checkout, then run `yarn install` in the
-Backstage app to copy it again, and restart Backstage. `pnpm dev` runs the
-standalone demo and does not replace this step.
-
-Keep the local dependency and associated lockfile changes out of shared
-Backstage commits, since CI and other developers may not have the neighbouring
-checkout. When finished, restore the previous dependency and run `yarn install`,
-or use `yarn remove @mwz/techdocs-mkdocs-svg-viewer` from `packages/app` if it
-was added only for this test, and remove its registration.
-
-The copy includes the whole checkout, not only the published files. To check the
-exact package contents that will be published, pack a tarball and add that
-instead:
-
-```sh
-# In the add-on checkout:
+# In the addon checkout:
 pnpm pack --out ../techdocs-mkdocs-svg-viewer.tgz
 
-# From the root of your Backstage app; adjust the path to the tarball:
+# From the root of your Backstage app. Adjust the path to the tarball:
 yarn --cwd packages/app add file:../../../techdocs-mkdocs-svg-viewer.tgz
 ```
 
