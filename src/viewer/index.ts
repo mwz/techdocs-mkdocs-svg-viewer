@@ -16,6 +16,21 @@ export interface SvgViewerOptions {
   /** Zoom bounds relative to Fit (1 = 100%). Must include 1. */
   minZoom?: number;
   maxZoom?: number;
+  /**
+   * Copy legacy `xlink:href` links into `href`, resolved like TechDocs resolves
+   * document links, so TechDocs routes them in-app. The addon enables this.
+   */
+  resolveXlinkHref?: boolean;
+}
+
+const XLINK = 'http://www.w3.org/1999/xlink';
+
+// Mirrors TechDocs' rewriteDocLinks: pages resolve as directories unless *.html.
+function pageBase(href: string): URL {
+  const url = new URL(href);
+  if (!url.pathname.endsWith('/') && !url.pathname.endsWith('.html'))
+    url.pathname += '/';
+  return url;
 }
 
 /** Install on a TechDocs shadow root, or a standalone MkDocs content container. */
@@ -29,6 +44,7 @@ export function installSvgViewer(
     minHeight = 40,
     minZoom = 0.25,
     maxZoom = 16,
+    resolveXlinkHref = false,
   } = options;
   if (
     ![minWidth, minHeight, minZoom, maxZoom].every(Number.isFinite) ||
@@ -52,6 +68,21 @@ export function installSvgViewer(
     SVGSVGElement,
     { button: HTMLButtonElement; marker: string | null }
   >();
+  const addedHrefs = new Set<Element>();
+  const resolveLinks = (svg: SVGSVGElement) => {
+    let base: URL | undefined;
+    for (const link of svg.querySelectorAll('a')) {
+      const value = link.getAttributeNS(XLINK, 'href');
+      if (value === null || link.hasAttribute('href')) continue;
+      try {
+        base ??= pageBase(win.location.href);
+        link.setAttribute('href', new URL(value, base).toString());
+        addedHrefs.add(link);
+      } catch {
+        // Leave unparsable values to the browser's native xlink handling.
+      }
+    }
+  };
   let active: ViewerHandle | undefined;
   let disposed = false;
   let frame = 0;
@@ -91,10 +122,12 @@ export function installSvgViewer(
         continue;
       if (
         svg.closest(
-          '[data-svg-viewer="off"], .md-icon, .twemoji, .emojione, button, [role="button"]',
-        )
+          '[data-svg-viewer="off"], .md-icon, .twemoji, .emojione, .mermaid, button, [role="button"]',
+        ) ||
+        svg.id.startsWith('mermaid')
       )
         continue;
+      if (resolveXlinkHref) resolveLinks(svg);
       const rect = svg.getBoundingClientRect();
       if (
         svg.getAttribute('data-svg-viewer') !== 'on' &&
@@ -171,6 +204,7 @@ export function installSvgViewer(
     root.removeEventListener('click', click);
     active?.close();
     for (const svg of entries.keys()) restoreEntry(svg);
+    for (const link of addedHrefs) link.removeAttribute('href');
     style.remove();
   };
 }

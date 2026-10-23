@@ -12,9 +12,14 @@ or turn it into an `<img>`.
 ## Behaviour
 
 - Click an **unlinked** diagram area, or its **Expand diagram** button, to open.
-- Links take priority over opening. Native `href` and legacy `xlink:href` keep
-  their destinations, targets, query strings, fragments and modifier-click
-  behaviour. The addon does not invent or rewrite link URLs.
+- Links take priority over opening. Links keep their destinations, targets,
+  query strings, fragments and modifier-click behaviour.
+- TechDocs only resolves and routes links that use `href`. For a link with only
+  legacy `xlink:href`, which many exporters emit, the addon adds an `href` with
+  the resolved URL. TechDocs then navigates in-app instead of reloading the
+  page. Unmounting the addon removes the added attributes.
+- When TechDocs routes a link clicked in the viewer, including a `#fragment`
+  link on the same page, the viewer closes so that the destination is visible.
 - A mouse/touch drag pans, even when it starts on a linked node. Releasing a
   drag does not follow the link; a normal click or keyboard activation does.
 - Wheel/trackpad and two-finger pinch zoom around the pointer/pinch centre.
@@ -25,9 +30,10 @@ or turn it into an `<img>`.
   that permission or API.
 - Native `<dialog>` provides modal focus containment and background inertness.
   Closing restores the SVG and returns keyboard focus to the expand button.
-- Small icons, nested SVG viewports and Material theme icon wrappers are
-  skipped. A MutationObserver discovers diagrams added by navigation or client
-  rendering.
+- Small icons, nested SVG viewports, Material theme icon wrappers and Mermaid
+  diagrams (`.mermaid`, or an SVG `id` starting with `mermaid`) are skipped. The
+  Mermaid addon has its own zoom controls. A MutationObserver discovers diagrams
+  added by navigation or client rendering.
 - All processing stays in the page. There are no viewer services or telemetry.
 
 ## Compatibility
@@ -46,6 +52,10 @@ uses Backstage's alpha `AddonBlueprint` API, which can change between releases.
 Older Backstage versions may work with the legacy entry point, but are not
 claimed as tested. React 19 is not included in this initial peer range because
 the verified TechDocs package declares React 17/18 support.
+
+The package targets Node 24 LTS (`engines.node >=24`). Build your Backstage app
+on Node 24 or later. Yarn 1 refuses to install the package on older Node
+versions.
 
 Requires a modern browser supporting native dialog, Pointer Events,
 ResizeObserver and shadow DOM. Chromium browser tests exercise real native SVG
@@ -226,14 +236,16 @@ This is optional: Backstage users should install the TechDocs addon instead.
   minHeight={40}
   minZoom={0.25}
   maxZoom={16}
+  resolveXlinkHref
 />
 ```
 
-| Option                  | Default                               | Meaning                                                                 |
-| ----------------------- | ------------------------------------- | ----------------------------------------------------------------------- |
-| `selector`              | `.md-content__inner svg, article svg` | CSS selector within the TechDocs shadow root                            |
-| `minWidth`, `minHeight` | `80`, `40`                            | Minimum rendered size in CSS pixels to avoid treating icons as diagrams |
-| `minZoom`, `maxZoom`    | `0.25`, `16`                          | Bounds relative to Fit; `1` means 100% fit, not native pixel size       |
+| Option                  | Default                                      | Meaning                                                                 |
+| ----------------------- | -------------------------------------------- | ----------------------------------------------------------------------- |
+| `selector`              | `.md-content__inner svg, article svg`        | CSS selector within the TechDocs shadow root                            |
+| `minWidth`, `minHeight` | `80`, `40`                                   | Minimum rendered size in CSS pixels to avoid treating icons as diagrams |
+| `minZoom`, `maxZoom`    | `0.25`, `16`                                 | Bounds relative to Fit; `1` means 100% fit, not native pixel size       |
+| `resolveXlinkHref`      | `true` (addon), `false` (`installSvgViewer`) | Add a resolved `href` to links that only have `xlink:href`              |
 
 Put `data-svg-viewer="on"` on a small SVG to override size thresholds. Put
 `data-svg-viewer="off"` on an SVG or its containing element to exclude it. An
@@ -260,9 +272,12 @@ different SVGs are not repaired by this addon.
 
 TechDocs remains responsible for sanitisation and routing. Relative URLs must
 already be correct in the rendered document; the viewer cannot recover the
-original `.svg` file's source path after inlining. It preserves the rendered
-links and stays in the same shadow root so TechDocs's delegated handlers can
-continue to receive their events. Test your app's routing customisations.
+original `.svg` file's source path after inlining. TechDocs attaches a click
+listener to each link before addons mount. The viewer moves the original nodes,
+so these listeners stay attached in the viewer. The addon resolves `xlink:href`
+values the same way TechDocs resolves `href`: relative to the page URL, with a
+trailing `/` unless the path ends in `.html`. Test your app's routing
+customisations.
 
 The page behind the dialog is inert. The SVG is restored on close, route/hash
 navigation, content removal or addon unmount. A link with `target="_blank"`

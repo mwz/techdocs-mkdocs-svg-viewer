@@ -10,6 +10,7 @@ export function SvgViewerAddon({
   minHeight,
   minZoom,
   maxZoom,
+  resolveXlinkHref = true,
 }: SvgViewerProps) {
   const root = useShadowRoot();
   useEffect(() => {
@@ -20,7 +21,8 @@ export function SvgViewerAddon({
       minHeight,
       minZoom,
       maxZoom,
+      resolveXlinkHref,
     });
-  }, [root, selector, minWidth, minHeight, minZoom, maxZoom]);
+  }, [root, selector, minWidth, minHeight, minZoom, maxZoom, resolveXlinkHref]);
   return null;
 }

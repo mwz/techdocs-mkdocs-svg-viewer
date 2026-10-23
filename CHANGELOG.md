@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Links with only `xlink:href` get a resolved `href`, so TechDocs routes them
+  in-app instead of reloading the page (`resolveXlinkHref`, on in the addon).
+- The viewer closes when TechDocs routes a link clicked in it, including
+  same-page `#fragment` links, which fire no `hashchange`.
+- Mermaid diagrams are skipped.
+- The demo's `?techdocs` mode simulates TechDocs link handling for browser
+  tests.
+
 ## 0.1.0
 
 - Initial Backstage TechDocs addon for inline SVG diagrams.

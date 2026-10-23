@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
-const open = async (page: Page) => {
-  await page.goto('/');
+const open = async (page: Page, url = '/') => {
+  await page.goto(url);
   await page
     .getByRole('button', {
       name: 'Expand Order processing architecture',
@@ -60,6 +60,9 @@ test('ignores theme icons and opt-outs; whole-image links get an independent exp
   await page.goto('/');
   await expect(page.locator('.tdsv-expand')).toHaveCount(2);
   await expect(page.locator('#wrapped-link .tdsv-expand')).toHaveCount(0);
+  await expect(page.locator('#mermaid-1')).not.toHaveAttribute(
+    'data-techdocs-svg-viewer-ready',
+  );
   await page
     .getByRole('button', { name: 'Expand Linked overview', exact: true })
     .click();
@@ -128,6 +131,63 @@ test('fragment links keep their href and close on hash navigation', async ({
   await page.getByRole('link', { name: 'Jump to queue note' }).click();
   await expect(page).toHaveURL(/#queue-note$/);
   await expect(page.getByRole('dialog')).toHaveCount(0);
+});
+
+test('with TechDocs routing, xlink:href links navigate in-app and close the viewer', async ({
+  page,
+}) => {
+  await open(page, '/?techdocs');
+  await page.evaluate(() => ((window as any).samePage = true));
+  const link = page.locator('a[aria-label="Read order service guide"]');
+  const resolved = new URL('/guide/?from=diagram#orders', page.url()).href;
+  await expect(link).toHaveAttribute('href', resolved);
+  await link.click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page).toHaveURL(resolved);
+  expect(
+    await page.evaluate(() => [
+      (window as any).samePage,
+      (window as any).techdocsNavigations,
+    ]),
+  ).toEqual([true, [resolved]]);
+});
+
+test('with TechDocs routing, fragment links close the viewer without hashchange', async ({
+  page,
+}) => {
+  await open(page, '/?techdocs');
+  await page.evaluate(() => {
+    (window as any).hashchanges = 0;
+    window.addEventListener('hashchange', () => (window as any).hashchanges++);
+  });
+  await page.getByRole('link', { name: 'Jump to queue note' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page).toHaveURL(/\?techdocs#queue-note$/);
+  expect(await page.evaluate(() => (window as any).hashchanges)).toBe(0);
+});
+
+test('modifier clicks on routed links leave the viewer open', async ({
+  page,
+}) => {
+  await open(page, '/?techdocs');
+  await page
+    .getByRole('link', { name: 'Jump to queue note' })
+    .click({ modifiers: ['ControlOrMeta'] });
+  await expect(page.getByRole('dialog')).toBeVisible();
+});
+
+test('resolved xlink hrefs are removed when the addon unmounts', async ({
+  page,
+}) => {
+  await page.goto('/?techdocs');
+  const link = page.locator('a[aria-label="Read order service guide"]');
+  await expect(link).toHaveAttribute('href', /\/guide\//);
+  await page.getByRole('button', { name: 'Remove addon' }).click();
+  await expect(link).not.toHaveAttribute('href');
+  await expect(link).toHaveAttribute(
+    'xlink:href',
+    '/guide/?from=diagram#orders',
+  );
 });
 
 test('zoom controls, wheel focal point, pan buttons, keyboard and Fit work', async ({

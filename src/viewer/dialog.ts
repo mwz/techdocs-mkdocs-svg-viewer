@@ -377,6 +377,19 @@ export function openViewer(
     },
     true,
   );
+  // TechDocs routes same-site links itself (history.pushState plus a scroll for
+  // fragments), which fires no hashchange/popstate. A plain click it took over
+  // means the page behind the viewer is the destination, so get out of the way.
+  canvas.addEventListener('click', (event) => {
+    if (
+      event.defaultPrevented &&
+      event.button === 0 &&
+      !(event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) &&
+      event.target instanceof Element &&
+      event.target.closest('a')
+    )
+      close();
+  });
   stage.addEventListener('dragstart', (event) => event.preventDefault());
   stage.addEventListener(
     'wheel',
