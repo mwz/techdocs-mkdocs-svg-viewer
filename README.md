@@ -203,6 +203,15 @@ For custom options, use `createTechDocsSvgViewerModule({ maxZoom: 32 })` instead
 of the default module. Install exactly one registration per TechDocs surface; do
 not combine the legacy addon and the new frontend module on the same reader.
 
+The package declares itself as a TechDocs module (`frontend-plugin-module` for
+`techdocs`), with the default module exported from `./alpha`. If your app uses
+feature discovery (`app.packages` in `app-config.yaml`), the module is installed
+automatically. Do not also add it to `features`. To use custom options with
+discovery, exclude this package from discovery and add
+`createTechDocsSvgViewerModule(...)` to `features` instead. Check the Backstage
+feature discovery documentation for your release, because this configuration can
+change.
+
 ## MkDocs configuration
 
 Keep your existing inline plugin setup, for example:

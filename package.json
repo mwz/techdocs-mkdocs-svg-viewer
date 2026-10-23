@@ -49,8 +49,12 @@
     "./dist/svg-viewer.js"
   ],
   "backstage": {
-    "role": "frontend-plugin",
-    "pluginId": "techdocs-addon-svg-viewer"
+    "role": "frontend-plugin-module",
+    "pluginId": "techdocs",
+    "pluginPackage": "@backstage/plugin-techdocs",
+    "features": {
+      "./alpha": "@backstage/FrontendModule"
+    }
   },
   "engines": {
     "node": ">=24"

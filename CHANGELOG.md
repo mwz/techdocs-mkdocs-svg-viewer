@@ -7,6 +7,9 @@
   as well as Backstage TechDocs. Update the dependency and imports in your
   Backstage app. The Backstage plugin ID `techdocs-addon-svg-viewer` is
   unchanged.
+- The package metadata now declares a TechDocs module (`frontend-plugin-module`,
+  `pluginId: techdocs`), like other TechDocs addons. New frontend apps that use
+  feature discovery load the `./alpha` module automatically.
 - All peer dependencies are optional, so the `/viewer` entry point can be used
   without React or Backstage packages.
 - Links with only `xlink:href` get a resolved `href`, so TechDocs routes them
