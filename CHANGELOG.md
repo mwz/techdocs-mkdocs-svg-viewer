@@ -7,6 +7,11 @@
 - The viewer closes when TechDocs routes a link clicked in it, including
   same-page `#fragment` links, which fire no `hashchange`.
 - Mermaid diagrams are skipped.
+- `dist/svg-viewer.js`: a self-contained drop-in script for MkDocs sites outside
+  Backstage, loaded with `extra_javascript`.
+- `pnpm example:serve` previews `examples/mkdocs` with the drop-in script via
+  Poetry and `techdocs-cli serve:mkdocs`. `@techdocs/cli` is a development
+  dependency, and the example uses Poetry instead of `requirements.txt`.
 - The demo's `?techdocs` mode simulates TechDocs link handling for browser
   tests.
 

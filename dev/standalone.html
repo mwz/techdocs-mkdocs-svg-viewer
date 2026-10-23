@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Standalone MkDocs SVG viewer demo</title>
+    <style>
+      body {
+        margin: 0;
+        font: 16px/1.6 system-ui;
+        color: #192338;
+      }
+      .md-content__inner {
+        max-width: 900px;
+        margin: auto;
+        padding: 24px;
+      }
+      .md-content__inner > p > svg {
+        max-width: 100%;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Mirrors Material for MkDocs output, without Backstage or a shadow root. -->
+    <button id="navigate">Simulate instant navigation</button>
+    <article class="md-content__inner md-typeset">
+      <h1>Standalone site</h1>
+      <p>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          id="standalone"
+          viewBox="0 0 400 160"
+          width="400"
+          height="160"
+        >
+          <title>Standalone diagram</title>
+          <rect width="400" height="160" fill="#edf4ff" />
+          <a xlink:href="#note" aria-label="Jump to note">
+            <rect x="20" y="40" width="160" height="80" fill="#fff3da" />
+            <text x="40" y="85">Note ↓</text>
+          </a>
+          <a xlink:href="guide/" aria-label="Read guide">
+            <rect x="220" y="40" width="160" height="80" fill="#e6f4ec" />
+            <text x="240" y="85">Guide</text>
+          </a>
+        </svg>
+      </p>
+      <p id="note">Note: the viewer closes on fragment navigation.</p>
+    </article>
+    <script>
+      document.querySelector('#navigate').addEventListener('click', () => {
+        document.querySelector('.md-content__inner').innerHTML =
+          '<h1>Next page</h1><p><svg id="next" viewBox="0 0 300 120" width="300" height="120"><title>Next page diagram</title><rect width="300" height="120" fill="#eee"/></svg></p>';
+      });
+    </script>
+    <!-- Loaded twice on purpose: the second load must be a no-op. -->
+    <script src="/dist/svg-viewer.js"></script>
+    <script src="/dist/svg-viewer.js"></script>
+  </body>
+</html>

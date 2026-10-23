@@ -1,5 +1,12 @@
 allowBuilds:
+  # Pulled in by @techdocs/cli. Its Docker, SSH and keychain support is not
+  # used: the example runs `serve:mkdocs --no-docker`.
+  core-js: false
+  cpu-features: false
   esbuild: true
+  keytar: false
+  protobufjs: false
+  ssh2: false
 minimumReleaseAgeExclude:
   - '@backstage/catalog-model@1.10.2'
   - '@backstage/config@1.3.10'

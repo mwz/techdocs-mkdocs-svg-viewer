@@ -215,17 +215,53 @@ A small, runnable MkDocs fixture is in `examples/mkdocs`. The `dev` demo
 exercises the same SVG with relative `xlink:href`, an external link, a fragment,
 a non-zero viewBox origin and gradient/marker references.
 
-For a separately hosted MkDocs site (outside Backstage), the dependency-free DOM
-controller is also exported. Bundle this small entry point with your site's
-JavaScript toolchain and load it after the content:
+## Standalone MkDocs site (outside Backstage)
+
+The viewer also works on a MkDocs site that you host without Backstage, for
+example the output of `mkdocs build` or `techdocs-cli generate`. The build
+produces one self-contained script, `dist/svg-viewer.js`. It needs no JavaScript
+toolchain in the docs repository.
+
+1. Build the add-on with `pnpm build`.
+2. Copy `dist/svg-viewer.js` to `docs/javascripts/svg-viewer.js` in the docs
+   repository. Alternatively, host the file once at an internal URL.
+3. Add the script to `mkdocs.yml`:
+
+   ```yaml
+   plugins:
+     - techdocs-core
+     - inline-select-svg:
+         pattern: '[.]inline[.]svg$'
+   extra_javascript:
+     - javascripts/svg-viewer.js # or the hosted URL
+   ```
+
+4. Preview with `techdocs-cli serve:mkdocs --no-docker` (or `mkdocs serve`),
+   then click a diagram.
+
+The script installs the viewer on `document.body` with the default options.
+Material's instant navigation replaces the page content but keeps `<body>`, so
+diagrams on later pages are enhanced too. The browser handles `href` and
+`xlink:href` links natively, so the script does not change links. To remove the
+viewer, call `window.disposeSvgViewer()`. Loading the script twice has no
+effect.
+
+You can keep the same `mkdocs.yml` for Backstage. TechDocs sanitises the HTML
+and removes `<script>` tags, so the script does not run there and the addon
+handles diagrams instead. Confirm that each diagram has only one **Expand
+diagram** button in your Backstage instance.
+
+`examples/mkdocs` is set up this way. From the repository root, run
+`pnpm example:serve` to build the script, copy it into the example and serve the
+site with `techdocs-cli` through Poetry. See `examples/mkdocs/README.md`.
+
+To use custom options, or to bundle the viewer with your own site JavaScript,
+import the controller instead:
 
 ```ts
 import { installSvgViewer } from '@mwz/backstage-techdocs-addon-svg-viewer/viewer';
-const dispose = installSvgViewer(document.body);
-// Call dispose() if your site's application shell is unmounted.
+const dispose = installSvgViewer(document.body, { maxZoom: 32 });
 ```
-
-This is optional: Backstage users should install the TechDocs addon instead.
 
 ## Configuration
 
@@ -296,10 +332,13 @@ pnpm dev
 ```
 
 Open the Vite URL shown in the terminal. The demo offers page-replacement and
-mount/unmount controls for lifecycle testing. `pnpm check` runs TypeScript,
-geometry tests, production builds and Playwright integration tests. CI runs the
-same checks on Node 24 and the current Node release, and archives browser traces
-on failure. Browser tests intercept example link destinations locally.
+mount/unmount controls for lifecycle testing. Add `?techdocs` to the URL to
+simulate TechDocs link handling. `/dev/standalone.html` loads the built
+`dist/svg-viewer.js` on a plain MkDocs-style page; run `pnpm build` first.
+`pnpm check` runs TypeScript, geometry tests, production builds and Playwright
+integration tests. CI runs the same checks on Node 24 and the current Node
+release, and archives browser traces on failure. Browser tests intercept example
+link destinations locally.
 
 ## Upstream integration references
 

@@ -1,0 +1,12 @@
+[project]
+name = "svg-viewer-mkdocs-example"
+version = "0.0.0"
+description = "MkDocs fixture for the TechDocs SVG viewer"
+requires-python = ">=3.12,<4"
+dependencies = [
+  "mkdocs-techdocs-core",
+  "mkdocs-inline-select-svg-plugin==0.1.0",
+]
+
+[tool.poetry]
+package-mode = false

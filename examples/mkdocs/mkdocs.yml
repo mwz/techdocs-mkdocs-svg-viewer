@@ -3,3 +3,7 @@ plugins:
   - techdocs-core
   - inline-select-svg:
       pattern: '[.]inline[.]svg$'
+# Only used outside Backstage; TechDocs strips <script> tags and the addon
+# takes over. Copy dist/svg-viewer.js here first (see README.md).
+extra_javascript:
+  - javascripts/svg-viewer.js
