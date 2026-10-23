@@ -13,7 +13,7 @@
       <rect x="10" y="100" width="190" height="80" rx="12" fill="url(#node-fill)" stroke="#8ca9d8"/>
       <text x="105" y="145" class="node-label">API gateway ↗</text>
     </a>
-    <a xlink:href="/guide/?from=diagram#orders" aria-label="Read order service guide">
+    <a xlink:href="order-service/#orders" aria-label="Read order service guide">
       <rect x="285" y="100" width="200" height="80" rx="12" fill="url(#node-fill)" stroke="#8ca9d8"/>
       <text x="385" y="145" class="node-label">Order service</text>
     </a>

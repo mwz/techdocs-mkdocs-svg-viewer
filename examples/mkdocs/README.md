@@ -36,5 +36,8 @@ poetry run mkdocs build
 
 Inspect `site/index.html`: it should contain an inline `<svg>`, rather than an
 `<img>` for this diagram. Publish it through your normal TechDocs pipeline to
-smoke-test the Backstage integration. `/guide/` is an illustrative link; replace
-it with a route that exists in your own docs.
+smoke-test the Backstage integration.
+
+The diagram's **Order service** node uses a relative legacy `xlink:href`
+(`order-service/#orders`) to `docs/order-service.md`. In Backstage, clicking it
+should open that page without a full page reload.
