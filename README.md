@@ -19,6 +19,10 @@ There are two ways to use the viewer:
   from a CDN with `extra_javascript`. You do not need a JavaScript toolchain.
   See [Standalone MkDocs site](#standalone-mkdocs-site-outside-backstage).
 
+MkDocs view ![alt text](img/mkdocs.png)
+
+SVG viewer ![alt text](img/svg-viewer.png)
+
 ## Behaviour
 
 - To open the viewer, click an **unlinked** area of the diagram, or click its
