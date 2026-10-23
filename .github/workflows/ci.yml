@@ -42,14 +42,18 @@ jobs:
           if-no-files-found: ignore
 
   publish:
-    # A `v*` tag publishes a release; a push to main publishes a snapshot with
-    # the `next` dist-tag. npm trusted publishing (OIDC) authenticates the job,
-    # so no npm token is stored. npm accepts one trusted publisher per package,
-    # so releases and snapshots must both come from this workflow file. Set the
-    # repository variable NPM_PUBLISH to `true` after the trusted publisher is
-    # configured on npmjs.com.
+    # A `v*` tag stages a release; a push to main stages a snapshot with the
+    # `next` dist-tag. A manual run on main always stages a snapshot. npm
+    # trusted publishing (OIDC) authenticates the job, so no npm token is
+    # stored. The trusted publisher allows only `npm stage publish`: a staged
+    # version stays private until a maintainer approves it on npmjs.com with
+    # 2FA. Set the repository variable NPM_PUBLISH to `true` after the trusted
+    # publisher is configured on npmjs.com.
     needs: check
-    if: github.event_name == 'push' && vars.NPM_PUBLISH == 'true'
+    if: >-
+      vars.NPM_PUBLISH == 'true' && (github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && github.ref ==
+      'refs/heads/main'))
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: npm
@@ -67,6 +71,8 @@ jobs:
         with:
           node-version: '24'
           registry-url: https://registry.npmjs.org
+      # `npm stage` needs npm 11.15.0 or later. Node 24 can include an older npm.
+      - run: npm install --global npm@11.21.0
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
       - run: pnpm install --frozen-lockfile
         timeout-minutes: 5
@@ -95,6 +101,7 @@ jobs:
             echo "release=true" >> "$GITHUB_OUTPUT"
           else
             # Skip the snapshot if nothing that goes into the package changed.
+            # A manual run has no previous commit, so it always continues.
             if git cat-file -e "$BEFORE^{commit}" 2>/dev/null &&
               git diff --quiet "$BEFORE" "$GITHUB_SHA" -- src package.json tsconfig.json tsup.config.ts; then
               echo "No package changes since $BEFORE. Skipping the snapshot."
@@ -114,7 +121,7 @@ jobs:
           echo "dist-tag=$dist_tag" >> "$GITHUB_OUTPUT"
       - run: pnpm build
         if: steps.version.outputs.skip != 'true'
-      - name: Publish to npm
+      - name: Stage on npm
         if: steps.version.outputs.skip != 'true'
         env:
           VERSION: ${{ steps.version.outputs.version }}
@@ -122,14 +129,15 @@ jobs:
         run: |
           name=$(node -p "require('./package.json').name")
           # npm view prints nothing for a version that is not published yet.
-          # Skipping a published version makes reruns safe and lets the first
-          # release, which is published by hand, still get a GitHub release.
+          # Skipping a published version lets the first release, which is
+          # published by hand, still get a GitHub release. npm view cannot see
+          # a staged version, so a rerun after staging fails: the version is
+          # already taken.
           if [[ -n "$(npm view "$name@$VERSION" version 2>/dev/null)" ]]; then
             echo "$name@$VERSION is already published. Skipping."
           else
-            # Trusted publishing needs npm 11.5.1 or later, which Node 24 includes.
-            # The previous step built the package, so skip the prepack build.
-            npm publish --tag "$DIST_TAG" --ignore-scripts
+            npm stage publish --tag "$DIST_TAG"
+            echo "::notice::Staged $name@$VERSION. Approve it in the Staged Packages tab on npmjs.com."
           fi
       - name: Create GitHub release
         if: steps.version.outputs.release == 'true'

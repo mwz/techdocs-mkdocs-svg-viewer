@@ -106,8 +106,9 @@ To try unreleased changes from `main`, install a snapshot with the `next` tag:
 yarn --cwd packages/app add @mwz/techdocs-mkdocs-svg-viewer@next
 ```
 
-When a change to the package source merges to `main`, CI publishes a snapshot,
-for example `0.2.1-main.42.gabc1234`. Snapshots are not stable releases.
+When a change to the package source merges to `main`, CI stages a snapshot, for
+example `0.2.1-main.42.gabc1234`. The snapshot is available after a maintainer
+approves it. Snapshots are not stable releases.
 
 ### Legacy frontend
 

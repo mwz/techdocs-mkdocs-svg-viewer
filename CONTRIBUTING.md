@@ -34,13 +34,18 @@ By contributing, you agree that your contribution is licensed under the
 
 ## Releases
 
-CI publishes to npm with
-[trusted publishing](https://docs.npmjs.com/trusted-publishers), so no npm token
-is stored in the repository.
+CI uses [trusted publishing](https://docs.npmjs.com/trusted-publishers), so no
+npm token is stored in the repository. CI can only
+[stage](https://docs.npmjs.com/staged-publishing) a version. A staged version
+stays private until a maintainer approves it with 2FA in the **Staged Packages**
+tab of the package on npmjs.com, or with `npm stage approve <stage-id>`. Reject
+a staged version that you do not want with `npm stage reject <stage-id>`.
 
-- **Snapshots:** each push to `main` that changes the package source publishes a
-  snapshot, for example `0.2.1-main.42.gabc1234`, with the `next` dist-tag.
-- **Releases:** a `v*` tag publishes the version in `package.json` with the
+- **Snapshots:** each push to `main` that changes the package source stages a
+  snapshot, for example `0.2.1-main.42.gabc1234`, with the `next` dist-tag. To
+  stage a snapshot without a source change, run the CI workflow manually on
+  `main`.
+- **Releases:** a `v*` tag stages the version in `package.json` with the
   `latest` dist-tag. A prerelease version, for example `0.3.0-rc.1`, uses the
   `next` dist-tag. CI also creates a GitHub release with the notes from
   `CHANGELOG.md` and attaches `dist/svg-viewer.js`.
@@ -59,6 +64,10 @@ To make a release:
    git push origin v0.2.1
    ```
 
-CI stops before it publishes if the tag does not match `package.json`, the
-tagged commit is not on `main`, or `CHANGELOG.md` has no section for the
+4. When CI has finished, approve the staged version on npmjs.com. Until you
+   approve it, the GitHub release exists but the version is not on npm or
+   jsDelivr.
+
+CI stops before it stages the version if the tag does not match `package.json`,
+the tagged commit is not on `main`, or `CHANGELOG.md` has no section for the
 version.
