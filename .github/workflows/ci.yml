@@ -91,8 +91,10 @@ jobs:
               echo "::error::Tag $GITHUB_REF_NAME is not on main."
               exit 1
             fi
-            awk -v heading="## $version" '$0 == heading { found = 1; next } /^## / { found = 0 } found' \
-              CHANGELOG.md > "$RUNNER_TEMP/release-notes.md"
+            # GitHub shows each line break in release notes, so unwrap the
+            # CHANGELOG lines.
+            awk -v heading="## $version" '$0 == heading { found = 1; next } /^## / { found = 0 } found' CHANGELOG.md |
+              pnpm exec prettier --stdin-filepath release-notes.md --prose-wrap never > "$RUNNER_TEMP/release-notes.md"
             if ! grep -q '[^[:space:]]' "$RUNNER_TEMP/release-notes.md"; then
               echo "::error::CHANGELOG.md has no '## $version' section."
               exit 1
