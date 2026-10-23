@@ -1,4 +1,13 @@
+import { readFileSync } from 'node:fs';
 import { defineConfig } from 'tsup';
+
+const { name, version, license, repository } = JSON.parse(
+  readFileSync('package.json', 'utf8'),
+);
+const repositoryUrl = repository.url
+  .replace(/^git\+/, '')
+  .replace(/\.git$/, '');
+
 // The two builds run in parallel, so `pnpm build` empties dist/ first instead
 // of letting either build clean it.
 export default defineConfig([
@@ -23,5 +32,10 @@ export default defineConfig([
     outExtension: () => ({ js: '.js' }),
     minify: true,
     clean: false,
+    // The license notice for copies loaded from a CDN or committed to a docs
+    // repository. Minifiers keep `/*!` comments.
+    banner: {
+      js: `/*! ${name} ${version} | ${license} | ${repositoryUrl} */`,
+    },
   },
 ]);

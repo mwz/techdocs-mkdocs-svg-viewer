@@ -1,7 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
 
+- First public release. The project is open source under the Apache License 2.0
+  and is published to npm. Snapshots of `main` are published with the `next`
+  tag. The standalone `svg-viewer.js` can be loaded from jsDelivr.
 - Renamed the repository to `techdocs-mkdocs-svg-viewer` and the package to
   `@mwz/techdocs-mkdocs-svg-viewer`, because it supports standalone MkDocs sites
   as well as Backstage TechDocs. Update the dependency and imports in your
