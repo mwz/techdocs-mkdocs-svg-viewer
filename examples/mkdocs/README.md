@@ -8,7 +8,7 @@ with Poetry. `mise install` in the repository root installs Python and Poetry.
 From the repository root:
 
 ```sh
-pnpm example:serve
+pnpm example:mkdocs:dev
 ```
 
 This builds the add-on, copies `dist/svg-viewer.js` to `docs/javascripts/`,
@@ -19,8 +19,8 @@ poetry run mkdocs serve
 ```
 
 Open <http://127.0.0.1:8000/> and click the diagram. To refresh only the script
-while the server runs, use `pnpm example:prepare` in another terminal. The
-copied script is ignored by Git, because it is a build output.
+while the server runs, use `pnpm example:mkdocs:prepare` in another terminal.
+The copied script is ignored by Git, because it is a build output.
 
 ## Choose a theme
 
@@ -36,13 +36,13 @@ The standalone configuration does not load `techdocs-core`, because that plugin
 clears the Material palette. Backstage adds it to its generated copy and uses
 the theme selected in Backstage Settings instead.
 
-To check both palettes in the generated HTML, run `pnpm test:mkdocs` from the
-repository root after installing the Python dependencies.
+To check both palettes in the generated HTML, run `pnpm example:mkdocs:test`
+from the repository root after installing the Python dependencies.
 
 ## Build the site
 
 ```sh
-pnpm example:prepare
+pnpm example:mkdocs:prepare
 cd examples/mkdocs
 poetry install
 poetry run mkdocs build
@@ -55,8 +55,8 @@ TechDocs through `catalog-info.yaml`.
 To test the site in Backstage, run these commands from the repository root:
 
 ```sh
-pnpm backstage:setup
-pnpm backstage:dev
+pnpm example:backstage:setup
+pnpm example:backstage:dev
 ```
 
 Open <http://localhost:3000/docs/default/component/svg-viewer-example> and sign

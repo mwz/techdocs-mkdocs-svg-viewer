@@ -5,7 +5,7 @@ import { installSvgViewer, type SvgViewerOptions } from './viewer';
 export type SvgViewerProps = SvgViewerOptions;
 
 export function SvgViewerAddon({
-  selector,
+  selector = '.md-content__inner svg, article svg',
   minWidth,
   minHeight,
   minZoom,

@@ -2,6 +2,86 @@ import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
+test('addon keeps its defaults independently of standalone configuration', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.assign(window, {
+      svgViewerOptions: {
+        selector: 'svg',
+        minWidth: 0,
+        minHeight: 0,
+        minZoom: 1,
+        maxZoom: 1,
+        resolveXlinkHref: false,
+      },
+    });
+  });
+  await page.goto('/docs/default/component/svg-viewer-example');
+  await page.getByRole('button', { name: /enter|sign in/i }).click();
+  await expect(
+    page.getByRole('button', {
+      name: 'Expand Order processing architecture',
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.locator('#architecture a[aria-label="Read order service guide"]'),
+  ).toHaveAttribute('href', /order-service\/#orders$/);
+
+  await page.locator('#architecture').evaluate((source) => {
+    const root = source.getRootNode() as ShadowRoot;
+    const diagram = (title: string, width: number, height: number) => {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', String(width));
+      svg.setAttribute('height', String(height));
+      svg.setAttribute('aria-label', title);
+      svg.style.cssText = `display:block;width:${width}px;height:${height}px`;
+      return svg;
+    };
+    const article = document.createElement('article');
+    article.append(
+      diagram('At size threshold', 80, 40),
+      diagram('Below width threshold', 79, 40),
+      diagram('Below height threshold', 80, 39),
+    );
+    const content = document.createElement('div');
+    content.className = 'md-content__inner';
+    content.append(diagram('In documentation content', 200, 100));
+    root.append(diagram('Outside documentation', 200, 100), article, content);
+  });
+  await expect(
+    page.getByRole('button', {
+      name: 'Expand In documentation content',
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.locator('.tdsv-expand')).toHaveCount(3);
+  for (const title of [
+    'Outside documentation',
+    'Below width threshold',
+    'Below height threshold',
+  ]) {
+    await expect(
+      page.locator(`svg[aria-label="${title}"]`),
+    ).not.toHaveAttribute('data-techdocs-svg-viewer-ready');
+  }
+
+  await page
+    .getByRole('button', { name: 'Expand At size threshold', exact: true })
+    .click();
+  for (let step = 0; step < 20; step++) await page.keyboard.press('+');
+  await expect(page.getByLabel('Zoom relative to fit')).toHaveText('1600%');
+  await expect(
+    page.getByRole('button', { name: 'Zoom in', exact: true }),
+  ).toBeDisabled();
+  for (let step = 0; step < 40; step++) await page.keyboard.press('-');
+  await expect(page.getByLabel('Zoom relative to fit')).toHaveText('25%');
+  await expect(
+    page.getByRole('button', { name: 'Zoom out', exact: true }),
+  ).toBeDisabled();
+});
+
 test('Settings switches the TechDocs viewer between dark and light themes', async ({
   page,
 }) => {

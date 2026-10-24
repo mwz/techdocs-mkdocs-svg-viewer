@@ -22,8 +22,8 @@ From the repository root, run:
 ```sh
 mise install
 pnpm install --frozen-lockfile
-pnpm backstage:setup
-pnpm backstage:dev
+pnpm example:backstage:setup
+pnpm example:backstage:dev
 ```
 
 The setup command installs the locked JavaScript and Python dependencies. The
@@ -52,18 +52,18 @@ can switch themes without changing the app configuration or restarting it.
 
 ## Test a change
 
-After you change the plugin, stop the app and run `pnpm backstage:dev` again.
-This command rebuilds the plugin and copies its output into
+After you change the plugin, stop the app and run `pnpm example:backstage:dev`
+again. This command rebuilds the plugin and copies its output into
 `examples/backstage/packages/svg-viewer`. This generated package resolves React
 and Backstage dependencies from the example app. It does not link to the
 repository's pnpm dependencies or use the published npm package.
 
 If you change the plugin's dependencies or package metadata, run
-`pnpm backstage:setup` again. If the change requires a new lockfile, run
+`pnpm example:backstage:setup` again. If the change requires a new lockfile, run
 `yarn install` from `examples/backstage` and commit `yarn.lock`.
 
 Edit documentation in `examples/mkdocs/docs`, then restart with
-`pnpm backstage:dev`. This command copies the documentation into
+`pnpm example:backstage:dev`. This command copies the documentation into
 `examples/backstage/.cache/mkdocs` before Backstage starts. TechDocs modifies
 the copied configuration during generation. The source stays unchanged, and the
 copy excludes the Poetry environment's external symlinks.
@@ -87,9 +87,9 @@ Try these actions in the diagram:
 After the setup command, run the automated checks from the repository root:
 
 ```sh
-pnpm backstage:check
+pnpm example:backstage:check
 pnpm exec playwright install --with-deps chromium
-pnpm test:backstage
+pnpm example:backstage:test
 ```
 
 The first command checks TypeScript and Backstage configuration, then builds the

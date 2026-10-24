@@ -8,7 +8,7 @@ import {
 import { viewerStyles } from './styles';
 
 export interface SvgViewerOptions {
-  /** Query within the TechDocs shadow root. Only outermost SVGs are enhanced. */
+  /** Query within the supplied container. Only outermost SVGs are enhanced. */
   selector?: string;
   /** Skip small icons; data-svg-viewer="on" overrides these thresholds. */
   minWidth?: number;
@@ -33,13 +33,13 @@ function pageBase(href: string): URL {
   return url;
 }
 
-/** Install on a TechDocs shadow root, or a standalone MkDocs content container. */
+/** Install on an HTML container or a TechDocs shadow root. */
 export function installSvgViewer(
   root: ViewerRoot,
   options: SvgViewerOptions = {},
 ): () => void {
   const {
-    selector = '.md-content__inner svg, article svg',
+    selector = 'svg',
     minWidth = 80,
     minHeight = 40,
     minZoom = 0.25,
