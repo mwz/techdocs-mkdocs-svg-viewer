@@ -1,0 +1,54 @@
+app:
+  title: SVG viewer playground
+  baseUrl: http://localhost:3000
+  listen:
+    host: 127.0.0.1
+  extensions:
+    - page:catalog:
+        config:
+          path: /
+
+organization:
+  name: Local development
+
+backend:
+  baseUrl: http://localhost:7007
+  listen:
+    host: 127.0.0.1
+    port: 7007
+  cors:
+    origin: http://localhost:3000
+    methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+    credentials: true
+  database:
+    client: better-sqlite3
+    connection: ':memory:'
+
+auth:
+  providers:
+    guest: {}
+
+catalog:
+  rules:
+    - allow: [Component]
+  locations:
+    # Relative to packages/backend, where the Backstage CLI starts the backend.
+    - type: file
+      target: ../../.cache/mkdocs/catalog-info.yaml
+
+techdocs:
+  builder: local
+  generator:
+    runIn: local
+    mkdocs:
+      disableExternalFonts: true
+      # This trusted local fixture needs the inline plugin to embed its SVG.
+      dangerouslyAllowAdditionalPlugins:
+        - inline-select-svg
+  publisher:
+    type: local
+    local:
+      publishDirectory: ../../.cache/techdocs
+
+permission:
+  enabled: false

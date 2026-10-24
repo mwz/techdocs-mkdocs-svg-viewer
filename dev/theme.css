@@ -1,0 +1,44 @@
+body {
+  color-scheme: light;
+  --demo-page-background: #f4f6fa;
+  --md-default-bg-color: #fff;
+  --md-default-fg-color: #192338;
+  --md-default-fg-color--light: #52617c;
+  --md-default-fg-color--lighter: #bac4d5;
+  --md-default-fg-color--lightest: #c5ccda;
+  --md-accent-fg-color: #1769e0;
+  --md-accent-fg-color--transparent: #e9eff9;
+}
+
+body[data-md-color-scheme='slate'] {
+  color-scheme: dark;
+  --demo-page-background: #171920;
+  --md-default-bg-color: #1e2129;
+  --md-default-fg-color: #e2e4e9;
+  --md-default-fg-color--light: #b4bac8;
+  --md-default-fg-color--lighter: #626a7b;
+  --md-default-fg-color--lightest: #414754;
+  --md-accent-fg-color: #90b8ff;
+  --md-accent-fg-color--transparent: #303c54;
+}
+
+.demo-controls button {
+  min-height: 44px;
+  margin: 0 6px 6px 0;
+  padding: 8px 14px;
+  border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 6px;
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  font: inherit;
+  cursor: pointer;
+}
+
+.demo-controls button:hover {
+  background: var(--md-accent-fg-color--transparent);
+}
+
+.demo-controls button:focus-visible {
+  outline: 3px solid var(--md-accent-fg-color);
+  outline-offset: 3px;
+}

@@ -4,11 +4,19 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Standalone MkDocs SVG viewer demo</title>
+    <link rel="stylesheet" href="/dev/theme.css" />
+    <script type="module" src="/dev/theme.ts"></script>
     <style>
       body {
         margin: 0;
         font: 16px/1.6 system-ui;
-        color: #192338;
+        background: var(--md-default-bg-color);
+        color: var(--md-default-fg-color);
+      }
+      .demo-controls {
+        max-width: 900px;
+        margin: auto;
+        padding: 24px 24px 0;
       }
       .md-content__inner {
         max-width: 900px;
@@ -23,7 +31,10 @@
   </head>
   <body>
     <!-- Mirrors Material for MkDocs output, without Backstage or a shadow root. -->
-    <button id="navigate">Simulate instant navigation</button>
+    <header class="demo-controls">
+      <button id="theme-toggle" type="button">Switch to dark mode</button>
+      <button id="navigate">Simulate instant navigation</button>
+    </header>
     <article class="md-content__inner md-typeset">
       <h1>Standalone site</h1>
       <p>

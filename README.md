@@ -19,9 +19,23 @@ There are two ways to use the viewer:
   from a CDN with `extra_javascript`. You do not need a JavaScript toolchain.
   See [Standalone MkDocs site](#standalone-mkdocs-site-outside-backstage).
 
-MkDocs view ![alt text](img/mkdocs.png)
+**Backstage**
 
-SVG viewer ![alt text](img/svg-viewer.png)
+| Light                                       | Dark                                      |
+| ------------------------------------------- | ----------------------------------------- |
+| ![Backstage light](img/backstage-light.png) | ![Backstage dark](img/backstage-dark.png) |
+
+**MkDocs**
+
+| Light                                 | Dark                                |
+| ------------------------------------- | ----------------------------------- |
+| ![MkDocs light](img/mkdocs-light.png) | ![MkDocs dark](img/mkdocs-dark.png) |
+
+**SVG viewer**
+
+| Light                                         | Dark                                        |
+| --------------------------------------------- | ------------------------------------------- |
+| ![SVG viewer light](img/svg-viewer-light.png) | ![SVG viewer dark](img/svg-viewer-dark.png) |
 
 ## Behaviour
 
@@ -51,6 +65,9 @@ SVG viewer ![alt text](img/svg-viewer.png)
 - The native `<dialog>` element keeps focus in the viewer and makes the page
   behind it inert. When the viewer closes, it restores the SVG to the page and
   returns keyboard focus to the expand button.
+- The viewer follows the TechDocs or Material for MkDocs colour palette,
+  including light and dark themes. Colours defined in the SVG stay unchanged.
+  Pages without these theme variables use the default light viewer palette.
 - The viewer skips small icons, nested SVG viewports, Material theme icon
   wrappers and Mermaid diagrams (`.mermaid`, or an SVG `id` that starts with
   `mermaid`). The Mermaid addon has its own zoom controls.
@@ -84,9 +101,10 @@ package.
 
 The viewer needs a modern browser that supports native dialog, Pointer Events,
 ResizeObserver and shadow DOM. Chromium browser tests cover real native SVG
-navigation, mouse, keyboard and touch. This repository is not a complete
-Backstage app. Before you roll out the addon, test it in your own TechDocs
-instance.
+navigation, mouse, keyboard and touch. The
+[local Backstage example](examples/backstage/README.md) tests the addon in a
+real TechDocs reader. Before you roll out the addon, test it in your own
+TechDocs instance too.
 
 ## Install
 
@@ -208,7 +226,7 @@ does not need a JavaScript toolchain.
 
    ```yaml
    plugins:
-     - techdocs-core
+     - search
      - inline-select-svg:
          pattern: '[.]inline[.]svg$'
    extra_javascript:
@@ -218,8 +236,7 @@ does not need a JavaScript toolchain.
    Keep an exact version in the URL. Then a new release does not change your
    site until you update the URL.
 
-2. Preview the site with `techdocs-cli serve:mkdocs --no-docker` or
-   `mkdocs serve`.
+2. Preview the site with `mkdocs serve`.
 3. Click a diagram.
 
 If your site cannot load scripts from a CDN (for example, because of a
@@ -237,6 +254,11 @@ the viewer also works on diagrams on later pages. The browser handles `href` and
 loads the script two times, the second load has no effect. To remove the viewer,
 call `window.disposeSvgViewer()`.
 
+For Material themes, set `theme.palette.scheme` to `default` for light mode or
+`slate` for dark mode. Do not load `techdocs-core` in the standalone
+configuration: it clears the palette. Backstage adds that plugin during
+generation and supplies its own theme.
+
 You can use the same `mkdocs.yml` for Backstage. TechDocs sanitises the HTML and
 removes `<script>` tags. Thus the script does not run in Backstage, and the
 addon handles the diagrams. In your Backstage instance, make sure that each
@@ -244,7 +266,7 @@ diagram has only one **Expand diagram** button.
 
 `examples/mkdocs` uses this setup. To run it, use `pnpm example:serve` from the
 repository root. This command builds the script, copies it into the example, and
-serves the site with `techdocs-cli` through Poetry. For more information, see
+serves the site with MkDocs through Poetry. For more information, see
 `examples/mkdocs/README.md`.
 
 To use custom options, or to bundle the viewer with your own site JavaScript,
@@ -348,8 +370,13 @@ Open the Vite URL that the terminal shows. The demo has controls to replace the
 page and to mount and unmount the addon, for lifecycle tests. To simulate the
 link handling of TechDocs, add `?techdocs` to the URL.
 
+Use the theme button to switch between light and dark mode. The page and viewer
+follow your choice, which is saved in this browser. New visits use light mode
+until you select a different theme.
+
 `/dev/standalone.html` loads the built `dist/svg-viewer.js` on a plain
-MkDocs-style page. Before you open this page, run `pnpm build`.
+MkDocs-style page with the same theme switcher. Before you open this page, run
+`pnpm build`.
 
 `pnpm check` runs TypeScript, geometry tests, production builds and Playwright
 integration tests. CI runs the same checks on Node 24 and on the current Node
@@ -358,7 +385,26 @@ intercept example link destinations locally.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for pull requests and releases.
 
-### Test changes in a local Backstage app
+### Run the included Backstage app
+
+The [Backstage example](examples/backstage/README.md) uses Backstage 1.56.2 with
+the new frontend system. It loads the plugin from this checkout and registers
+`examples/mkdocs` as TechDocs. It uses guest sign-in, SQLite and local MkDocs
+builds. You do not need Docker, PostgreSQL or external credentials.
+
+After `mise install` and `pnpm install --frozen-lockfile`, run:
+
+```sh
+pnpm backstage:setup
+pnpm backstage:dev
+```
+
+Open <http://localhost:3000/docs/default/component/svg-viewer-example> and sign
+in as a guest. After a plugin change, stop the app and run `pnpm backstage:dev`
+again. Run `pnpm backstage:check` and `pnpm test:backstage` to test the
+integration. See the example README for prerequisites and details.
+
+### Test changes in your own Backstage app
 
 Add this checkout to your Backstage app as a folder-based `file:` dependency.
 This works with Yarn 1 (Classic) and Yarn 2–4. Yarn copies the folder into the

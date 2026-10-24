@@ -41,6 +41,25 @@ jobs:
           path: test-results/
           if-no-files-found: ignore
 
+  backstage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v5
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm backstage:setup
+      - run: pnpm test:mkdocs
+      - run: pnpm backstage:check
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:backstage
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: backstage-browser-results
+          path: test-results/backstage/
+          if-no-files-found: ignore
+
   publish:
     # A `v*` tag stages a release; a push to main stages a snapshot with the
     # `next` dist-tag. A manual run on main always stages a snapshot. npm
@@ -49,7 +68,7 @@ jobs:
     # version stays private until a maintainer approves it on npmjs.com with
     # 2FA. Set the repository variable NPM_PUBLISH to `true` after the trusted
     # publisher is configured on npmjs.com.
-    needs: check
+    needs: [check, backstage]
     if: >-
       vars.NPM_PUBLISH == 'true' && (github.event_name == 'push' ||
       (github.event_name == 'workflow_dispatch' && github.ref ==

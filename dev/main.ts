@@ -3,7 +3,7 @@ import diagram from './diagram.svg?raw';
 const root = document.querySelector('#docs')!.attachShadow({ mode: 'open' });
 // Trusted, repository-owned demo fixture; production never parses SVG strings.
 const markup = `<style>
-:host{color:#22314d}article{font:16px/1.6 system-ui}article>svg{max-width:100%;height:auto}.node-label{fill:rgb(34,49,77)}article>svg .node-label{font-weight:600}.twemoji svg{width:20px;height:20px}a{color:#2464c4}
+:host{color:var(--md-default-fg-color)}article{font:16px/1.6 system-ui}article>svg{max-width:100%;height:auto}.node-label{fill:rgb(34,49,77)}article>svg .node-label{font-weight:600}.twemoji svg{width:20px;height:20px}a{color:var(--md-accent-fg-color)}
 </style><article class="md-content__inner"><h2>Service architecture</h2><p>Click any unlinked part of the diagram to expand. Linked nodes retain normal navigation.</p>${diagram}
 <p id="queue-note">Queue note: events are delivered at least once.</p>
 <p><span class="twemoji"><svg viewBox="0 0 20 20"><circle r="8" cx="10" cy="10"/></svg></span> Small icons should remain untouched.</p>
