@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- The viewer toolbar includes a White theme button for diagrams that are hard to
+  read against the host palette. Page theme restores the host palette. The
+  browser saves the choice for all diagrams on the same website, separately from
+  the page theme. SVG artwork, zoom and pan stay unchanged. If browser storage
+  is unavailable, the choice applies only to the open viewer.
+
 - Both standalone demo pages include a light/dark switcher. They start in light
   mode and save the selected theme in the browser.
 

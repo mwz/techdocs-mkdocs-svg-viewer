@@ -67,9 +67,85 @@ test('Settings switches the TechDocs viewer between dark and light themes', asyn
     }
     await page.getByRole('button', { name: 'Zoom in', exact: true }).click();
     await expect(page.getByLabel('Zoom relative to fit')).toHaveText('125%');
+    const pageBackground = await dialog.evaluate(
+      (element) => getComputedStyle(element).backgroundColor,
+    );
+    await page
+      .getByRole('button', { name: 'Use white theme', exact: true })
+      .click();
+    await expect(dialog).toHaveCSS('background-color', 'rgb(242, 244, 248)');
+    await expect(page.locator('.tdsv-canvas')).toHaveCSS(
+      'background-color',
+      'rgb(255, 255, 255)',
+    );
+    await expect(
+      page.getByRole('button', { name: 'Zoom in', exact: true }),
+    ).toHaveCSS('color', 'rgb(25, 35, 56)');
+    await page
+      .getByRole('button', { name: 'Use page theme', exact: true })
+      .click();
+    await expect(dialog).toHaveCSS('background-color', pageBackground);
+    await expect(page.getByLabel('Zoom relative to fit')).toHaveText('125%');
     await page.keyboard.press('Escape');
     await expect(dialog).toHaveCount(0);
   }
+});
+
+test('viewer theme persists across TechDocs navigation and reloads', async ({
+  page,
+}) => {
+  await page.goto('/settings');
+  await page.getByRole('button', { name: /enter|sign in/i }).click();
+  const dark = page.getByRole('button', { name: /^dark$/i });
+  await dark.click();
+  await expect(dark).toHaveAttribute('aria-pressed', 'true');
+  const docs = '/docs/default/component/svg-viewer-example';
+  await page.goto(docs);
+  const expand = page.getByRole('button', {
+    name: 'Expand Order processing architecture',
+    exact: true,
+  });
+  await expand.click();
+  const dialog = page.getByRole('dialog');
+  const pageBackground = await dialog.evaluate(
+    (element) => getComputedStyle(element).backgroundColor,
+  );
+  await page
+    .getByRole('button', { name: 'Use white theme', exact: true })
+    .click();
+  await page.keyboard.press('Escape');
+  await expand.click();
+  await expect(dialog).toHaveCSS('background-color', 'rgb(242, 244, 248)');
+  await page.keyboard.press('Escape');
+
+  await page
+    .getByTestId('sidebar-root')
+    .getByRole('link', { name: 'Settings', exact: true })
+    .click();
+  await expect(dark).toHaveAttribute('aria-pressed', 'true');
+  await page.goto(docs);
+  await expand.click();
+  await expect(
+    page.getByRole('button', { name: 'Use page theme', exact: true }),
+  ).toBeVisible();
+  await expect(page.locator('.tdsv-canvas')).toHaveCSS(
+    'background-color',
+    'rgb(255, 255, 255)',
+  );
+  await page.reload();
+  await expand.click();
+  await expect(dialog).toHaveCSS('background-color', 'rgb(242, 244, 248)');
+  await page
+    .getByRole('button', { name: 'Use page theme', exact: true })
+    .click();
+  await expect(dialog).toHaveCSS('background-color', pageBackground);
+  await page.reload();
+  await expand.click();
+  await expect(dialog).toHaveCSS('background-color', pageBackground);
+  await expect(
+    page.getByRole('button', { name: 'Use white theme', exact: true }),
+  ).toBeVisible();
+  await page.keyboard.press('Escape');
 });
 
 test('the local addon runs in TechDocs and routes SVG links without reloading', async ({

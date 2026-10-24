@@ -68,6 +68,13 @@ There are two ways to use the viewer:
 - The viewer follows the TechDocs or Material for MkDocs colour palette,
   including light and dark themes. Colours defined in the SVG stay unchanged.
   Pages without these theme variables use the default light viewer palette.
+- If a diagram is hard to read in the current theme, select **White theme** in
+  the viewer toolbar. This restores the original light palette and white canvas.
+  Select **Page theme** to follow the host palette again and clear the saved
+  override. Your browser remembers this choice for all diagrams on the same
+  website, including after reloads and browser restarts. This preference is
+  separate from the website's theme and preserves the SVG artwork, zoom and pan.
+  If browser storage is unavailable, the choice applies only to the open viewer.
 - The viewer skips small icons, nested SVG viewports, Material theme icon
   wrappers and Mermaid diagrams (`.mermaid`, or an SVG `id` that starts with
   `mermaid`). The Mermaid addon has its own zoom controls.

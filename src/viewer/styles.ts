@@ -11,6 +11,17 @@ export const viewerStyles = `
   --tdsv-hover: var(--md-accent-fg-color--transparent, #e9eff9);
   --tdsv-focus: var(--md-accent-fg-color, #1769e0);
 }
+.tdsv[data-theme="white"] {
+  color-scheme: light;
+  --tdsv-background: #f2f4f8;
+  --tdsv-surface: #fff;
+  --tdsv-foreground: #192338;
+  --tdsv-muted: #46536b;
+  --tdsv-border: #bac4d5;
+  --tdsv-grid: #c5ccda;
+  --tdsv-hover: #e9eff9;
+  --tdsv-focus: #1769e0;
+}
 svg[data-techdocs-svg-viewer-ready] { cursor: zoom-in; }
 svg[data-techdocs-svg-viewer-ready] a { cursor: pointer; }
 button.tdsv-expand { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 12px; margin: 6px 0 12px; border: 1px solid var(--tdsv-border); border-radius: 7px; background: transparent; color: inherit; font: inherit; font-size: 14px; cursor: pointer; }
@@ -22,6 +33,7 @@ dialog.tdsv::backdrop { background: #0b1220d9; }
 .tdsv .tdsv-toolbar { flex: 0 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--tdsv-border); background: var(--tdsv-surface); }
 .tdsv .tdsv-title { margin: 0 auto 0 0; font: 600 16px/1.4 system-ui, sans-serif; max-width: min(35vw, 400px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tdsv button { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; min-width: 44px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--tdsv-border); border-radius: 7px; background: var(--tdsv-surface); color: var(--tdsv-foreground); font: 500 14px/1.4 system-ui, sans-serif; cursor: pointer; }
+.tdsv .tdsv-theme { min-width: 112px; }
 .tdsv button:hover { background: var(--tdsv-hover); }
 .tdsv button:disabled { opacity: .4; cursor: default; }
 .tdsv button:focus-visible, button.tdsv-expand:focus-visible, .tdsv a:focus-visible { outline: 3px solid var(--tdsv-focus); outline-offset: 3px; }

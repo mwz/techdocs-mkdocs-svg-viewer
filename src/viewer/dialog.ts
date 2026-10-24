@@ -18,6 +18,8 @@ export interface ViewerHandle {
   placeholder: HTMLElement;
 }
 
+const themeStorageKey = '@mwz/techdocs-mkdocs-svg-viewer:theme';
+
 // Snapshot context-dependent presentation before moving the SAME node. This keeps
 // IDs, definitions, DOM listeners and native links without cloning/reparsing HTML.
 const presentation = [
@@ -227,6 +229,31 @@ export function openViewer(
   button('Pan up', '↑', () => pan(0, 80));
   button('Pan down', '↓', () => pan(0, -80));
   button('Pan right', '→', () => pan(-80, 0));
+  const applyTheme = (white: boolean) => {
+    if (white) dialog.dataset.theme = 'white';
+    else delete dialog.dataset.theme;
+    const label = white ? 'Use page theme' : 'Use white theme';
+    theme.textContent = white ? 'Page theme' : 'White theme';
+    theme.setAttribute('aria-label', label);
+    theme.title = label;
+  };
+  const theme = button('Use white theme', 'White theme', () => {
+    const white = dialog.dataset.theme !== 'white';
+    applyTheme(white);
+    try {
+      if (white) win.localStorage.setItem(themeStorageKey, 'white');
+      else win.localStorage.removeItem(themeStorageKey);
+    } catch {
+      // The current viewer still works when browser storage is unavailable.
+    }
+  });
+  // Keep the toolbar layout stable when the button label changes.
+  theme.className = 'tdsv-theme';
+  try {
+    applyTheme(win.localStorage.getItem(themeStorageKey) === 'white');
+  } catch {
+    // Follow the page theme when the saved preference cannot be read.
+  }
   const fullscreenElement = () =>
     root instanceof ShadowRoot ? root.fullscreenElement : doc.fullscreenElement;
   const fullscreen = button('Enter fullscreen', 'Fullscreen', () => {
