@@ -29,6 +29,18 @@ is not there.
 See [Development](README.md#development) in the README for the demo and for
 testing a change in a local Backstage app.
 
+For a change to the Backstage integration, use the
+[included Backstage app](examples/backstage/README.md):
+
+```sh
+pnpm backstage:setup
+pnpm backstage:check
+pnpm test:backstage
+```
+
+The browser test uses the real TechDocs reader and the local MkDocs example. The
+Backstage app has its own Yarn lockfile and uses Node 24.
+
 By contributing, you agree that your contribution is licensed under the
 [Apache License, Version 2.0](LICENSE).
 

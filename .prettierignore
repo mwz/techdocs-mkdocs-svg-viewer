@@ -3,3 +3,8 @@ dist
 node_modules
 playwright-report
 test-results
+examples/backstage/yarn.lock
+examples/backstage/.yarn
+examples/backstage/.cache
+examples/backstage/dist-types
+examples/backstage/packages/svg-viewer

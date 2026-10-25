@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: svg-viewer-example
+  title: SVG viewer example
+  description: MkDocs diagrams for testing the SVG viewer in Backstage TechDocs.
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: documentation
+  lifecycle: experimental
+  owner: user:development/guest

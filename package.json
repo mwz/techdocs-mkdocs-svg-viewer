@@ -73,11 +73,17 @@
     "test:browser": "pnpm build && playwright test",
     "dev": "vite --host 127.0.0.1",
     "example:prepare": "pnpm build && node -e \"fs.mkdirSync('examples/mkdocs/docs/javascripts',{recursive:true});fs.copyFileSync('dist/svg-viewer.js','examples/mkdocs/docs/javascripts/svg-viewer.js')\"",
-    "example:serve": "pnpm example:prepare && cd examples/mkdocs && poetry install && poetry run techdocs-cli serve:mkdocs -v --no-docker",
+    "example:serve": "pnpm example:prepare && cd examples/mkdocs && poetry install && poetry run mkdocs serve",
+    "test:mkdocs": "cd examples/mkdocs && poetry run python -m unittest discover -s tests",
     "check": "pnpm typecheck && pnpm test && pnpm test:browser",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build",
+    "backstage:prepare": "pnpm example:prepare && node examples/backstage/scripts/prepare.mjs",
+    "backstage:setup": "pnpm backstage:prepare && cd examples/mkdocs && poetry install && cd ../backstage && yarn install --immutable",
+    "backstage:dev": "pnpm backstage:prepare && node examples/backstage/scripts/start.mjs",
+    "backstage:check": "cd examples/backstage && yarn typecheck && yarn config:check && yarn build:app",
+    "test:backstage": "playwright test --config examples/backstage/playwright.config.ts"
   },
   "peerDependencies": {
     "@backstage/core-plugin-api": "^1.12.11",

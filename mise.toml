@@ -1,6 +1,8 @@
 [tools]
 node = "24"
 pnpm = "11.25.0"
-# Only for the MkDocs example (examples/mkdocs).
+# Only for the Backstage example (examples/backstage).
+yarn = "4.13.0"
+# Used by the MkDocs and Backstage examples.
 python = "3.12"
 poetry = "2.1.1"
