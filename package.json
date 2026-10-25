@@ -85,7 +85,10 @@
     "example:backstage:setup": "pnpm example:backstage:prepare && cd examples/mkdocs && poetry install && cd ../backstage && yarn install --immutable",
     "example:backstage:dev": "pnpm example:backstage:prepare && node examples/backstage/scripts/start.mjs",
     "example:backstage:check": "cd examples/backstage && yarn typecheck && yarn config:check && yarn build:app",
-    "example:backstage:test": "playwright test --config examples/backstage/playwright.config.ts"
+    "example:backstage:test": "playwright test --config examples/backstage/playwright.config.ts",
+    "example:backstage-demo:build": "pnpm example:backstage:prepare && node examples/backstage/scripts/build-demo.mjs",
+    "example:backstage-demo:dev": "pnpm example:backstage-demo:build && node examples/backstage/scripts/serve-demo.mjs",
+    "example:backstage-demo:test": "playwright test --config examples/backstage/playwright.demo.config.ts"
   },
   "peerDependencies": {
     "@backstage/core-plugin-api": "^1.12.11",

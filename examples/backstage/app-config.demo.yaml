@@ -1,0 +1,25 @@
+app:
+  title: SVG viewer playground
+  baseUrl: ${DEMO_BASE_URL}
+  extensions:
+    - sign-in-page:app: false
+    - page:techdocs/reader:
+        config:
+          withoutSearch: true
+          withoutFeedbackLink: true
+    - sub-page:user-settings/auth-providers: false
+    - sub-page:user-settings/feature-flags: false
+
+organization:
+  name: SVG viewer
+
+# This is only a URL namespace for the reader's cookie check. The demo's FetchApi
+# answers that check in memory. No backend is deployed or contacted.
+backend:
+  baseUrl: ${DEMO_BASE_URL}
+
+techdocs:
+  builder: external
+
+permission:
+  enabled: false

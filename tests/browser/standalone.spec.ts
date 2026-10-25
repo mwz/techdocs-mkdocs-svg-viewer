@@ -4,6 +4,150 @@ import { expect, test } from '@playwright/test';
 // MkDocs `extra_javascript` would load it outside Backstage.
 const url = '/dev/standalone.html';
 
+for (const example of [
+  {
+    url: '/examples/standalone/index.html',
+    title: 'Example diagram',
+    svg: 'body > svg',
+  },
+  { url, title: 'Standalone diagram', svg: '#standalone' },
+  { url: '/', title: 'Order processing architecture', svg: '#architecture' },
+]) {
+  test(`expand button has a centred default and accepts earlier host CSS on ${example.url}`, async ({
+    page,
+  }) => {
+    await page.goto(example.url);
+    const button = page.getByRole('button', {
+      name: `Expand ${example.title}`,
+      exact: true,
+    });
+    await expect(button).toBeVisible();
+    const bounds = () =>
+      button.evaluate((element) => {
+        const rect = element.getBoundingClientRect();
+        const parent = element.parentElement!;
+        const parentRect = parent.getBoundingClientRect();
+        const style = getComputedStyle(parent);
+        const left =
+          parentRect.left +
+          parseFloat(style.borderLeftWidth) +
+          parseFloat(style.paddingLeft);
+        const right =
+          parentRect.right -
+          parseFloat(style.borderRightWidth) -
+          parseFloat(style.paddingRight);
+        return {
+          left: rect.left,
+          right: rect.right,
+          top: rect.top,
+          centre: rect.left + rect.width / 2,
+          parentLeft: left,
+          parentRight: right,
+        };
+      });
+    const expectDiagramAlignment = async () => {
+      await expect
+        .poll(async () => {
+          const control = await bounds();
+          const diagram = (await page.locator(example.svg).boundingBox())!;
+          return Math.abs(control.centre - (diagram.x + diagram.width / 2));
+        })
+        .toBeLessThan(1);
+      const control = await bounds();
+      const diagram = (await page.locator(example.svg).boundingBox())!;
+      expect(control.top).toBeGreaterThanOrEqual(diagram.y + diagram.height);
+    };
+    await expectDiagramAlignment();
+
+    await page.locator(example.svg).evaluate((svg) => {
+      svg.style.cssText =
+        'display:block;width:50%;max-width:300px;height:auto;margin-inline:0';
+    });
+    await expectDiagramAlignment();
+    await page.locator(example.svg).evaluate((svg) => {
+      svg.style.marginInline = 'auto';
+    });
+    await expectDiagramAlignment();
+    // A container resize can move a fixed-width diagram without resizing it.
+    await button.evaluate((element) => {
+      element.parentElement!.style.width = '600px';
+    });
+    await expectDiagramAlignment();
+    await button.evaluate((element) => {
+      element.parentElement!.style.width = '800px';
+    });
+    await expectDiagramAlignment();
+    await button.evaluate((element) => {
+      element.parentElement!.style.width = '420px';
+    });
+    await expectDiagramAlignment();
+
+    // Insert host CSS BEFORE the viewer stylesheet. A class selector must win
+    // without !important, including inside the TechDocs shadow root.
+    for (const alignment of ['left', 'right'] as const) {
+      await button.evaluate((element, side) => {
+        const root = element.getRootNode() as Document | ShadowRoot;
+        const host = root instanceof Document ? root.head : root;
+        let style = host.querySelector<HTMLStyleElement>(
+          'style[data-expand-layout]',
+        );
+        if (!style) {
+          style = document.createElement('style');
+          style.dataset.expandLayout = '';
+          host.prepend(style);
+        }
+        style.textContent = `.tdsv-expand { margin-inline: ${side === 'left' ? '0 auto' : 'auto 0'}; }`;
+      }, alignment);
+      const aligned = await bounds();
+      expect(
+        Math.abs(
+          alignment === 'left'
+            ? aligned.left - aligned.parentLeft
+            : aligned.right - aligned.parentRight,
+        ),
+      ).toBeLessThan(1);
+    }
+  });
+}
+
+test('expand alignment follows a scaled RTL container and recovers after closing', async ({
+  page,
+}) => {
+  await page.goto('/examples/standalone/index.html');
+  const button = page.getByRole('button', {
+    name: 'Expand Example diagram',
+    exact: true,
+  });
+  await expect(button).toBeVisible();
+  await page.locator('body > svg').evaluate((svg) => {
+    svg.style.cssText =
+      'display:block;width:50%;height:auto;margin-inline:auto';
+    svg.parentElement!.style.cssText =
+      'width:600px;direction:rtl;transform:scale(0.8);transform-origin:top left';
+  });
+  const centreOffset = () =>
+    button.evaluate((element) => {
+      const buttonRect = element.getBoundingClientRect();
+      const svgRect = element.previousElementSibling!.getBoundingClientRect();
+      return Math.abs(
+        buttonRect.left +
+          buttonRect.width / 2 -
+          svgRect.left -
+          svgRect.width / 2,
+      );
+    });
+  await expect.poll(centreOffset).toBeLessThan(1);
+  await button.click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.locator('body').evaluate((body) => {
+    body.style.width = '440px';
+  });
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect.poll(centreOffset).toBeLessThan(1);
+  await expect(button).toBeFocused();
+});
+
 for (const entry of ['script', 'module']) {
   test(`${entry} finds SVGs without documentation containers`, async ({
     page,

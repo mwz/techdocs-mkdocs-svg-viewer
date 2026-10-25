@@ -24,7 +24,10 @@ export const viewerStyles = `
 }
 svg[data-techdocs-svg-viewer-ready] { cursor: zoom-in; }
 svg[data-techdocs-svg-viewer-ready] a { cursor: pointer; }
-button.tdsv-expand { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 12px; margin: 6px 0 12px; border: 1px solid var(--tdsv-border); border-radius: 7px; background: transparent; color: inherit; font: inherit; font-size: 14px; cursor: pointer; }
+/* Keep layout less specific than a host's .tdsv-expand rule, even when the
+   host stylesheet loads before this injected stylesheet. */
+button:where(.tdsv-expand) { display: flex; width: fit-content; margin-block: 6px 12px; margin-inline: var(--tdsv-expand-offset, 0px) 0; }
+button.tdsv-expand { align-items: center; gap: 6px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--tdsv-border); border-radius: 7px; background: transparent; color: inherit; font: inherit; font-size: 14px; cursor: pointer; }
 dialog.tdsv { box-sizing: border-box; position: fixed; inset: 0; margin: 0; border: 0; padding: 0; width: 100vw; height: 100dvh; max-width: none; max-height: none; background: var(--tdsv-background); color: var(--tdsv-foreground); font: 14px/1.5 system-ui, sans-serif; }
 dialog.tdsv[open] { display: flex; flex-direction: column; }
 .tdsv .tdsv-shell { display: flex; flex-direction: column; width: 100%; height: 100%; min-height: 0; background: var(--tdsv-background); }

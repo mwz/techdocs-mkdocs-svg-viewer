@@ -18,7 +18,6 @@ test('addon keeps its defaults independently of standalone configuration', async
     });
   });
   await page.goto('/docs/default/component/svg-viewer-example');
-  await page.getByRole('button', { name: /enter|sign in/i }).click();
   await expect(
     page.getByRole('button', {
       name: 'Expand Order processing architecture',
@@ -86,7 +85,6 @@ test('Settings switches the TechDocs viewer between dark and light themes', asyn
   page,
 }) => {
   await page.goto('/settings');
-  await page.getByRole('button', { name: /enter|sign in/i }).click();
 
   for (const theme of ['dark', 'light'] as const) {
     // The explicit Backstage choice must win over the operating system setting.
@@ -175,7 +173,6 @@ test('viewer theme persists across TechDocs navigation and reloads', async ({
   page,
 }) => {
   await page.goto('/settings');
-  await page.getByRole('button', { name: /enter|sign in/i }).click();
   const dark = page.getByRole('button', { name: /^dark$/i });
   await dark.click();
   await expect(dark).toHaveAttribute('aria-pressed', 'true');
@@ -228,21 +225,40 @@ test('viewer theme persists across TechDocs navigation and reloads', async ({
   await page.keyboard.press('Escape');
 });
 
-test('the local addon runs in TechDocs and routes SVG links without reloading', async ({
+test('home opens the example docs and routes SVG links without reloading', async ({
   page,
 }) => {
   const mkdocsPath = resolve(__dirname, '../../mkdocs/mkdocs.yml');
   const originalMkdocs = await readFile(mkdocsPath, 'utf8');
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  await page.goto('/docs/default/component/svg-viewer-example');
-  await page.getByRole('button', { name: /enter|sign in/i }).click();
+  await page.goto('/');
+  await expect(page).toHaveURL('/docs/default/component/svg-viewer-example');
 
   const expand = page.getByRole('button', {
     name: 'Expand Order processing architecture',
     exact: true,
   });
   await expect(expand).toHaveCount(1);
+  await expect(
+    page.getByRole('button', { name: /^(enter|sign in)$/i }),
+  ).toHaveCount(0);
+  await page.locator('#architecture').evaluate((svg) => {
+    svg.style.width = '300px';
+  });
+  const layout = () =>
+    expand.evaluate((button) => {
+      const rect = button.getBoundingClientRect();
+      const svg = button.previousElementSibling!.getBoundingClientRect();
+      return {
+        centreOffset: rect.left + rect.width / 2 - (svg.left + svg.width / 2),
+        gap: rect.top - svg.bottom,
+      };
+    });
+  await expect
+    .poll(async () => Math.abs((await layout()).centreOffset))
+    .toBeLessThan(1);
+  expect((await layout()).gap).toBeGreaterThanOrEqual(0);
   await expand.click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await expect(page.locator('.tdsv #architecture')).toHaveAttribute(

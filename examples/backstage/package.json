@@ -10,7 +10,7 @@
     "packages/*"
   ],
   "scripts": {
-    "start": "backstage-cli repo start",
+    "start": "backstage-cli repo start app backend",
     "typecheck": "tsc --noEmit",
     "build:app": "yarn workspace app build",
     "config:check": "backstage-cli config:check"

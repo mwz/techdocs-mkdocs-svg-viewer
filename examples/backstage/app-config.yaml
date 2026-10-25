@@ -4,9 +4,11 @@ app:
   listen:
     host: 127.0.0.1
   extensions:
-    - page:catalog:
+    - app/routes:
         config:
-          path: /
+          redirects:
+            - from: /
+              to: /docs/default/component/svg-viewer-example
 
 organization:
   name: Local development

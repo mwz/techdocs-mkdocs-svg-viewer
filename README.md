@@ -445,6 +445,28 @@ If an SVG is inside an HTML link, the viewer adds a separate expand button
 outside that link. The link around the whole image stays available on the page.
 Links **inside** the SVG stay available in the viewer.
 
+### Expand button layout
+
+The expand button takes its own line and centres beneath the rendered diagram,
+including diagrams narrower than their content container. The viewer measures
+the diagram and updates the button position when the diagram or its container
+resizes. It does not move or wrap the SVG.
+
+The default layout rule has low CSS specificity. Host styles can override its
+position without `!important`, even if they load before the viewer styles. For
+example, align the button to the left:
+
+```css
+.tdsv-expand {
+  margin-inline: 0 auto;
+}
+```
+
+Use `margin-inline: auto 0` to align it to the right. In MkDocs, load this rule
+through `extra_css`. In Backstage, add the rule inside the TechDocs shadow root,
+for example through a custom styles addon. Styles in the outer app cannot select
+elements inside that shadow root.
+
 ## Rendering and lifecycle notes
 
 The viewer temporarily moves the original SVG into a native dialog in the same
@@ -531,11 +553,12 @@ All example commands use `example:<name>:<action>`. After the development setup,
 run these commands from the repository root. Use `dev` to launch an example and
 `test` to run its tests:
 
-| Example                                           | Launch                        | Test                           |
-| ------------------------------------------------- | ----------------------------- | ------------------------------ |
-| [Standalone HTML](examples/standalone/index.html) | `pnpm example:standalone:dev` | `pnpm example:standalone:test` |
-| [MkDocs](examples/mkdocs/README.md)               | `pnpm example:mkdocs:dev`     | `pnpm example:mkdocs:test`     |
-| [Backstage](examples/backstage/README.md)         | `pnpm example:backstage:dev`  | `pnpm example:backstage:test`  |
+| Example                                                      | Launch                            | Test                               |
+| ------------------------------------------------------------ | --------------------------------- | ---------------------------------- |
+| [Standalone HTML](examples/standalone/index.html)            | `pnpm example:standalone:dev`     | `pnpm example:standalone:test`     |
+| [MkDocs](examples/mkdocs/README.md)                          | `pnpm example:mkdocs:dev`         | `pnpm example:mkdocs:test`         |
+| [Backstage](examples/backstage/README.md)                    | `pnpm example:backstage:dev`      | `pnpm example:backstage:test`      |
+| [Static Backstage](examples/backstage/README.md#static-demo) | `pnpm example:backstage-demo:dev` | `pnpm example:backstage-demo:test` |
 
 The standalone command builds the script and opens
 <http://127.0.0.1:5174/examples/standalone/>. Restart it after changes to the
@@ -550,10 +573,15 @@ in a real TechDocs reader.
 
 ### Run the included Backstage app
 
+The [static Backstage demo](examples/backstage/README.md#static-demo) runs the
+real TechDocs reader and SVG addon without a backend. After the Backstage setup
+below, run `pnpm example:backstage-demo:dev` to preview it. The GitHub Pages
+workflow builds and tests the demo, then deploys pushes to `main`.
+
 The [Backstage example](examples/backstage/README.md) uses Backstage 1.56.2 with
 the new frontend system. It loads the plugin from this checkout and registers
-`examples/mkdocs` as TechDocs. It uses guest sign-in, SQLite and local MkDocs
-builds. You do not need Docker, PostgreSQL or external credentials.
+`examples/mkdocs` as TechDocs. It uses automatic guest access, SQLite and local
+MkDocs builds. You do not need Docker, PostgreSQL or external credentials.
 
 After `mise install` and `pnpm install --frozen-lockfile`, run:
 
@@ -562,8 +590,8 @@ pnpm example:backstage:setup
 pnpm example:backstage:dev
 ```
 
-Open <http://localhost:3000/docs/default/component/svg-viewer-example> and sign
-in as a guest. After a plugin change, stop the app and run
+Open <http://localhost:3000/>. The app enters as a guest automatically and opens
+the example documentation. After a plugin change, stop the app and run
 `pnpm example:backstage:dev` again. Run `pnpm example:backstage:check` and
 `pnpm example:backstage:test` to test the integration. See the example README
 for prerequisites and details.

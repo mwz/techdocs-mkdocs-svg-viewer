@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 
 export default defineConfig({
   testDir: './tests',
+  testIgnore: 'demo.spec.ts',
   outputDir: '../../test-results/backstage',
   timeout: 120_000,
   expect: { timeout: 30_000 },

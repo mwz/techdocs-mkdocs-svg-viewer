@@ -1,14 +1,19 @@
-# Local Backstage example
+# Backstage examples
 
 This app runs the SVG viewer in a real Backstage TechDocs reader. It uses
 Backstage 1.56.2, the latest stable release on 24 October 2026, from the
 [official release manifest](https://versions.backstage.io/v1/tags/main/manifest.json).
 The package versions and `yarn.lock` keep the installation repeatable.
 
-The app includes the catalogue, TechDocs, search and guest sign-in. SQLite holds
-the catalogue in memory. TechDocs builds the existing `examples/mkdocs` site
-locally and stores its output in `examples/backstage/.cache/techdocs`. You do
-not need Docker, PostgreSQL, GitHub credentials or a cloud account.
+The app includes the catalogue, TechDocs, search and automatic guest access.
+SQLite holds the catalogue in memory. TechDocs builds the existing
+`examples/mkdocs` site locally and stores its output in
+`examples/backstage/.cache/techdocs`. You do not need Docker, PostgreSQL, GitHub
+credentials or a cloud account.
+
+The static demo in `packages/demo` uses the same reader, addon and
+documentation. GitHub Pages can serve this demo without a backend. See
+[Static demo](#static-demo) for local preview and deployment instructions.
 
 ## Run the app
 
@@ -30,15 +35,17 @@ The setup command installs the locked JavaScript and Python dependencies. The
 first installation can take several minutes. If SQLite needs to compile on your
 platform, install Python, Make and a C++ compiler first.
 
-Open <http://localhost:3000/docs/default/component/svg-viewer-example>. Select
-the guest sign-in button. The first visit builds the documentation. You can also
-open the example from the catalogue or the Docs sidebar entry. Press Ctrl+C in
-the terminal to stop the app.
+Open <http://localhost:3000/>. The app signs in as a guest automatically and
+redirects to `/docs/default/component/svg-viewer-example`. The first visit waits
+for the example to appear in the catalogue, then builds the documentation. The
+catalogue remains available at `/catalog` and through the sidebar. Press Ctrl+C
+in the terminal to stop the app.
 
 Both servers listen on the loopback interface. The frontend uses port 3000, and
 the backend uses port 7007. Keep these ports free before you start. This
-configuration is for local development. Guest sign-in is enabled, and catalogue
-data resets when the backend restarts.
+configuration is for local development. The frontend obtains guest credentials
+from the backend without a login screen. Catalogue data resets when the backend
+restarts.
 
 ## Switch between light and dark themes
 
@@ -93,16 +100,28 @@ pnpm example:backstage:test
 ```
 
 The first command checks TypeScript and Backstage configuration, then builds the
-frontend. The browser test starts the app, signs in, builds TechDocs, opens the
-viewer and follows SVG links without a full page reload. It also switches
-between dark and light themes through Settings. It reuses an app already running
-on port 3000 outside CI.
+frontend. The browser test starts the app, enters without a login screen, builds
+TechDocs, opens the viewer and follows SVG links without a full page reload. It
+also switches between dark and light themes through Settings. It reuses an app
+already running on port 3000 outside CI.
 
 ## Files and updates
 
 `packages/app/src/App.tsx` registers the new frontend module explicitly. Package
 discovery is disabled, so the module loads once. The backend includes only
 authentication, the catalogue, TechDocs and the local Lunr search engine.
+
+The app wraps `ProxiedSignInPage` for the `guest` provider in `GuestSignInPage`.
+It retries connection failures and temporary gateway or service errors for up to
+30 seconds while the backend starts. Other sign-in errors appear immediately. If
+sign-in fails, use Try again without reloading the page. Backstage obtains and
+refreshes guest credentials automatically. The backend keeps its normal
+authentication checks.
+
+`ExampleDocsReady.tsx` waits for the example entry before it opens the TechDocs
+reader. This prevents a 404 while the catalogue starts. It retries missing-entry
+responses for up to 30 seconds and provides a retry button if the entry stays
+unavailable. Other errors appear immediately.
 
 `../mkdocs/catalog-info.yaml` registers the existing documentation with
 `backstage.io/techdocs-ref: dir:.`. The preparation script copies this file with
@@ -119,3 +138,64 @@ remove the generated documentation, stop the app and delete
 To update Backstage, use `yarn backstage-cli versions:bump` from this directory.
 Review the package and lockfile changes, then run the checks above. Update the
 version and date in this README after testing the new release.
+
+## Static demo
+
+The demo opens the example documentation without sign-in. The real TechDocs
+reader loads generated HTML and the SVG addon from this checkout. Settings
+provides the normal Backstage appearance controls.
+
+The demo uses a fixed catalogue entity and custom TechDocs APIs. These APIs read
+files from the same website. The demo answers the reader's cookie request in
+memory and does not contact a backend. Search, catalogue editing and
+authentication are not included.
+
+After the setup command above, run:
+
+```sh
+pnpm example:backstage-demo:dev
+```
+
+Open <http://localhost:4173/techdocs-mkdocs-svg-viewer/>. This command builds
+the demo and serves its files with Python. Restart it after source changes. The
+server has no fallback that redirects missing files to the app.
+
+To build and test the static output separately, run:
+
+```sh
+pnpm example:backstage-demo:build
+pnpm example:backstage-demo:test
+```
+
+The build writes the site to `examples/backstage/packages/demo/dist`. It copies
+the documentation before generation, so the MkDocs source stays unchanged. It
+also writes an app entry page for each generated documentation route, the Docs
+entry, the example entity and Settings. These files let GitHub Pages serve
+bookmarks and page refreshes without a routing service.
+
+The browser tests use a plain file server under `/techdocs-mkdocs-svg-viewer/`.
+They test direct visits, refreshes, SVG links, fragments, zoom and appearance.
+They fail on browser errors, failed HTTP responses, backend requests and
+requests outside the site.
+
+## Deploy to GitHub Pages
+
+The `GitHub Pages` workflow in `.github/workflows/pages.yml` builds and tests
+the demo on pull requests. Pushes to `main` and manual runs on `main` also
+deploy the tested output. Pull requests never deploy the site.
+
+Before the first deployment, complete these steps in the GitHub repository:
+
+1. Open Settings, then Pages.
+2. Set Build and deployment, Source to GitHub Actions.
+3. Restrict the `github-pages` environment to deployments from `main`.
+
+The workflow uploads the generated files with `actions/upload-pages-artifact`.
+It publishes them with `actions/deploy-pages`. It does not commit generated
+files or use a deployment branch. See GitHub's
+[custom workflow instructions](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
+
+The configured address is `https://mwz.github.io/techdocs-mkdocs-svg-viewer/`.
+The workflow deployment result confirms when the site is available.
+`DEMO_BASE_URL` sets the address at build time. If the repository name or host
+path changes, update this value and the path in the browser tests.
