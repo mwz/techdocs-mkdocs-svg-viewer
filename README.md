@@ -1,5 +1,11 @@
 # Backstage TechDocs & MkDocs SVG viewer
 
+[![GitHub release](https://img.shields.io/github/v/release/mwz/techdocs-mkdocs-svg-viewer?label=release)](https://github.com/mwz/techdocs-mkdocs-svg-viewer/releases/latest)
+[![npm stable version](https://img.shields.io/npm/v/%40mwz%2Ftechdocs-mkdocs-svg-viewer/latest?label=npm)](https://www.npmjs.com/package/@mwz/techdocs-mkdocs-svg-viewer/v/latest)
+[![npm snapshot version](https://img.shields.io/npm/v/%40mwz%2Ftechdocs-mkdocs-svg-viewer/next?label=snapshot)](https://www.npmjs.com/package/@mwz/techdocs-mkdocs-svg-viewer/v/next)
+[![jsDelivr stable](https://img.shields.io/badge/jsDelivr-stable-orange?logo=jsdelivr)](https://cdn.jsdelivr.net/npm/@mwz/techdocs-mkdocs-svg-viewer@latest/dist/svg-viewer.js)
+[![jsDelivr snapshot](https://img.shields.io/badge/jsDelivr-snapshot-blue?logo=jsdelivr)](https://cdn.jsdelivr.net/npm/@mwz/techdocs-mkdocs-svg-viewer@next/dist/svg-viewer.js)
+
 Click an inline SVG diagram to open it in a full-window, accessible viewer. The
 viewer has zoom, mouse and touch panning, direction buttons and an optional
 browser fullscreen mode.
@@ -245,6 +251,19 @@ does not need a JavaScript toolchain.
 
 2. Preview the site with `mkdocs serve`.
 3. Click a diagram.
+
+To test the latest approved snapshot, replace the stable URL above with the
+`next` URL:
+
+```yaml
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/@mwz/techdocs-mkdocs-svg-viewer@next/dist/svg-viewer.js
+```
+
+Snapshots become available on jsDelivr after a maintainer approves them on npm.
+The `next` URL changes as snapshots are approved, but CDN caching can delay an
+update. For repeatable validation, replace `next` with the exact published
+snapshot version. Keep the pinned stable version for production sites.
 
 If your site cannot load scripts from a CDN (for example, because of a
 Content-Security-Policy or an offline build), use a local copy of the script:
