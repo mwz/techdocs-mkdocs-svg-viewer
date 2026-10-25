@@ -13,7 +13,7 @@ export default defineConfig({
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: 'pnpm backstage:dev',
+    command: 'pnpm example:backstage:dev',
     cwd: resolve(__dirname, '../..'),
     url: 'http://localhost:3000',
     timeout: 240_000,

@@ -10,13 +10,14 @@ Click an inline SVG diagram to open it in a full-window, accessible viewer. The
 viewer has zoom, mouse and touch panning, direction buttons and an optional
 browser fullscreen mode.
 
-The viewer is for SVGs that
+The viewer works with inline `<svg>` elements on any HTML page, including SVGs
+that
 [mkdocs-inline-select-svg-plugin](https://pypi.org/project/mkdocs-inline-select-svg-plugin/)
 and similar plugins embed in the page. The viewer uses the original inline SVG,
 so embedded links, text, gradients, markers, IDs and event listeners stay
 available. The viewer does not rasterise the SVG or change it into an `<img>`.
 
-There are two ways to use the viewer:
+There are three ways to use the viewer:
 
 - **Backstage TechDocs:** Install the package and register the addon. See
   [Legacy frontend](#legacy-frontend) or
@@ -24,6 +25,9 @@ There are two ways to use the viewer:
 - **MkDocs site outside Backstage:** Load the self-contained `svg-viewer.js`
   from a CDN with `extra_javascript`. You do not need a JavaScript toolchain.
   See [Standalone MkDocs site](#standalone-mkdocs-site-outside-backstage).
+- **Standalone HTML page:** Load `svg-viewer.js` with a `<script>` tag. You do
+  not need MkDocs, Backstage or React. See
+  [Standalone HTML page](#standalone-html-page).
 
 **Backstage**
 
@@ -226,6 +230,112 @@ gives better labels for the button and the viewer.
 demo uses the same SVG. This SVG has a relative `xlink:href`, an external link,
 a fragment, a non-zero viewBox origin, and gradient and marker references.
 
+## Standalone HTML page
+
+The viewer works on a plain HTML page with inline SVGs anywhere in `<body>`. The
+general `svg` selector and script configuration below are unreleased. The
+published `0.2.0` script still requires the documentation containers.
+
+After the [development setup](#development), run `pnpm build`. Copy
+`dist/svg-viewer.js` beside your HTML file. Save this example as `index.html`
+and open it in a browser:
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SVG viewer example</title>
+    <script defer src="./svg-viewer.js"></script>
+  </head>
+  <body>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 300 120"
+      width="300"
+      height="120"
+    >
+      <title>Example diagram</title>
+      <rect width="300" height="120" fill="#edf4ff" />
+      <text x="150" y="65" text-anchor="middle">Click to expand</text>
+    </svg>
+  </body>
+</html>
+```
+
+Click the diagram or its Expand diagram button to open the viewer. The script
+includes the viewer styles and installs itself after the HTML loads.
+
+The default selector is `svg`. You do not need a particular container or CSS
+class. The SVG must be inline HTML, not an `<img src="diagram.svg">`, `<object>`
+or `<iframe>`. The viewer skips SVGs smaller than 80 × 40 CSS pixels. Add
+`data-svg-viewer="on"` to a small SVG to include it, or `data-svg-viewer="off"`
+to exclude a diagram.
+
+The [minimal example](examples/standalone/index.html) uses the script built from
+this checkout. After the [development setup](#development), run
+`pnpm example:standalone:dev` to build the script and open the example. You can
+also run `pnpm build` and open the HTML file directly without a server.
+
+### Configure the standalone script
+
+Set `window.svgViewerOptions` before loading `svg-viewer.js`. You can use any
+option in [Configuration](#configuration). For example, this configuration
+selects only SVGs with `class="diagram"` and changes the size and zoom limits:
+
+```html
+<script>
+  window.svgViewerOptions = {
+    selector: 'svg.diagram',
+    minWidth: 40,
+    minHeight: 20,
+    minZoom: 0.5,
+    maxZoom: 32,
+  };
+</script>
+<script defer src="./svg-viewer.js"></script>
+```
+
+Options that you omit keep their defaults. The script reads the configuration
+once when it installs. Later changes to the object do not change the viewer.
+Call `window.disposeSvgViewer()` to remove it. For component lifecycle control,
+use the JavaScript import below.
+
+### Use with a JavaScript bundler
+
+If your site bundles JavaScript, install the package:
+
+```sh
+npm install @mwz/techdocs-mkdocs-svg-viewer
+```
+
+Import the `/viewer` entry point after the page container exists. It does not
+need React or Backstage packages. Pass your options directly to
+`installSvgViewer`:
+
+```js
+import { installSvgViewer } from '@mwz/techdocs-mkdocs-svg-viewer/viewer';
+
+const dispose = installSvgViewer(document.body, {
+  selector: 'svg.diagram',
+  maxZoom: 32,
+});
+```
+
+The selector searches within the container passed as the first argument. The
+viewer also finds matching SVGs added to that container later. In the current
+checkout, an omitted selector defaults to `svg`. With version `0.2.0`, set the
+selector explicitly to search outside documentation containers.
+
+If an existing direct call needs the previous selection, pass
+`selector: '.md-content__inner svg, article svg'`. Both Backstage addon entry
+points keep this selector by default and ignore `window.svgViewerOptions`.
+
+Call `dispose()` when you remove the page or component to remove the viewer and
+its listeners. Use either this import or the automatic script on a page, not
+both. The JavaScript import does not read `window.svgViewerOptions`.
+
 ## Standalone MkDocs site (outside Backstage)
 
 The viewer also works on a MkDocs site that you host without Backstage, for
@@ -290,17 +400,21 @@ removes `<script>` tags. Thus the script does not run in Backstage, and the
 addon handles the diagrams. In your Backstage instance, make sure that each
 diagram has only one **Expand diagram** button.
 
-`examples/mkdocs` uses this setup. To run it, use `pnpm example:serve` from the
-repository root. This command builds the script, copies it into the example, and
-serves the site with MkDocs through Poetry. For more information, see
+`examples/mkdocs` uses this setup. To run it, use `pnpm example:mkdocs:dev` from
+the repository root. This command builds the script, copies it into the example,
+and serves the site with MkDocs through Poetry. For more information, see
 `examples/mkdocs/README.md`.
 
-To use custom options, or to bundle the viewer with your own site JavaScript,
-import the controller:
+With the script built from this checkout, you can also use
+[script configuration](#configure-the-standalone-script) in MkDocs. Put the
+`window.svgViewerOptions` assignment in
+`docs/javascripts/svg-viewer-options.js`. List that file before the viewer
+script:
 
-```ts
-import { installSvgViewer } from '@mwz/techdocs-mkdocs-svg-viewer/viewer';
-const dispose = installSvgViewer(document.body, { maxZoom: 32 });
+```yaml
+extra_javascript:
+  - javascripts/svg-viewer-options.js
+  - javascripts/svg-viewer.js
 ```
 
 ## Configuration
@@ -316,12 +430,12 @@ const dispose = installSvgViewer(document.body, { maxZoom: 32 });
 />
 ```
 
-| Option                  | Default                                      | Meaning                                                                     |
-| ----------------------- | -------------------------------------------- | --------------------------------------------------------------------------- |
-| `selector`              | `.md-content__inner svg, article svg`        | CSS selector in the TechDocs shadow root                                    |
-| `minWidth`, `minHeight` | `80`, `40`                                   | Minimum rendered size in CSS pixels. The viewer skips smaller SVGs as icons |
-| `minZoom`, `maxZoom`    | `0.25`, `16`                                 | Zoom limits relative to Fit. `1` is 100% of Fit, not the native pixel size  |
-| `resolveXlinkHref`      | `true` (addon), `false` (`installSvgViewer`) | Add a resolved `href` to links that have only `xlink:href`                  |
+| Option                  | Default                                                           | Meaning                                                                     |
+| ----------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `selector`              | `svg` (standalone), `.md-content__inner svg, article svg` (addon) | CSS selector within the supplied container or TechDocs shadow root          |
+| `minWidth`, `minHeight` | `80`, `40`                                                        | Minimum rendered size in CSS pixels. The viewer skips smaller SVGs as icons |
+| `minZoom`, `maxZoom`    | `0.25`, `16`                                                      | Zoom limits relative to Fit. `1` is 100% of Fit, not the native pixel size  |
+| `resolveXlinkHref`      | `true` (addon), `false` (standalone)                              | Add a resolved `href` to links that have only `xlink:href`                  |
 
 To open a small SVG in the viewer, add `data-svg-viewer="on"` to the SVG. This
 attribute overrides the size limits. To exclude an SVG, add
@@ -334,9 +448,9 @@ Links **inside** the SVG stay available in the viewer.
 ## Rendering and lifecycle notes
 
 The viewer temporarily moves the original SVG into a native dialog in the same
-shadow root. Because only one node exists, there are no duplicate IDs.
-References between `<defs>`, gradients, markers and `<use>` also continue to
-work.
+document or shadow root. Because only one node exists, there are no duplicate
+IDs. References between `<defs>`, gradients, markers and `<use>` also continue
+to work.
 
 Before the move, the viewer records the presentation styles from a temporary
 copy of the SVG in the same position. The copy is not under the pointer, so the
@@ -411,6 +525,29 @@ intercept example link destinations locally.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for pull requests and releases.
 
+### Run the examples
+
+All example commands use `example:<name>:<action>`. After the development setup,
+run these commands from the repository root. Use `dev` to launch an example and
+`test` to run its tests:
+
+| Example                                           | Launch                        | Test                           |
+| ------------------------------------------------- | ----------------------------- | ------------------------------ |
+| [Standalone HTML](examples/standalone/index.html) | `pnpm example:standalone:dev` | `pnpm example:standalone:test` |
+| [MkDocs](examples/mkdocs/README.md)               | `pnpm example:mkdocs:dev`     | `pnpm example:mkdocs:test`     |
+| [Backstage](examples/backstage/README.md)         | `pnpm example:backstage:dev`  | `pnpm example:backstage:test`  |
+
+The standalone command builds the script and opens
+<http://127.0.0.1:5174/examples/standalone/>. Restart it after changes to the
+viewer source. MkDocs installs its Python dependencies and serves on port 8000.
+Before the first Backstage launch, run `pnpm example:backstage:setup`. Press
+Ctrl+C to stop a running example.
+
+The standalone tests use Chromium. The MkDocs tests check the generated HTML and
+need the Python dependencies installed by `example:mkdocs:dev` or
+`example:backstage:setup`. The Backstage tests start the app and test the viewer
+in a real TechDocs reader.
+
 ### Run the included Backstage app
 
 The [Backstage example](examples/backstage/README.md) uses Backstage 1.56.2 with
@@ -421,14 +558,15 @@ builds. You do not need Docker, PostgreSQL or external credentials.
 After `mise install` and `pnpm install --frozen-lockfile`, run:
 
 ```sh
-pnpm backstage:setup
-pnpm backstage:dev
+pnpm example:backstage:setup
+pnpm example:backstage:dev
 ```
 
 Open <http://localhost:3000/docs/default/component/svg-viewer-example> and sign
-in as a guest. After a plugin change, stop the app and run `pnpm backstage:dev`
-again. Run `pnpm backstage:check` and `pnpm test:backstage` to test the
-integration. See the example README for prerequisites and details.
+in as a guest. After a plugin change, stop the app and run
+`pnpm example:backstage:dev` again. Run `pnpm example:backstage:check` and
+`pnpm example:backstage:test` to test the integration. See the example README
+for prerequisites and details.
 
 ### Test changes in your own Backstage app
 

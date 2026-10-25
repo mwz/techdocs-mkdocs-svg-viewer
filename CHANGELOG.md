@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- Example commands use `example:<name>:<action>`, with `dev` to launch and
+  `test` to run tests. Added `example:standalone:dev` and
+  `example:standalone:test`. Renamed the MkDocs and Backstage commands to follow
+  the same convention.
+
+- Standalone setup now finds inline SVGs anywhere in the supplied container by
+  default. The TechDocs addon keeps its documentation selector. Set
+  `window.svgViewerOptions` before loading `svg-viewer.js` to customise the
+  selector, size thresholds and zoom limits. Added standalone HTML instructions
+  and a minimal example without MkDocs, Backstage or React. Existing direct
+  `installSvgViewer()` calls that need the previous selection must pass
+  `selector: '.md-content__inner svg, article svg'` explicitly.
+
 - The viewer toolbar includes a White theme button for diagrams that are hard to
   read against the host palette. Page theme restores the host palette. The
   browser saves the choice for all diagrams on the same website, separately from

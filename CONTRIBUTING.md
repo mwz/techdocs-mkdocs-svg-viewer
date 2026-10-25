@@ -33,9 +33,9 @@ For a change to the Backstage integration, use the
 [included Backstage app](examples/backstage/README.md):
 
 ```sh
-pnpm backstage:setup
-pnpm backstage:check
-pnpm test:backstage
+pnpm example:backstage:setup
+pnpm example:backstage:check
+pnpm example:backstage:test
 ```
 
 The browser test uses the real TechDocs reader and the local MkDocs example. The

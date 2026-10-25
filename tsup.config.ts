@@ -26,7 +26,7 @@ export default defineConfig([
     ],
   },
   {
-    // Single self-contained script for MkDocs `extra_javascript`.
+    // Self-contained script for HTML pages and MkDocs `extra_javascript`.
     entry: { 'svg-viewer': 'src/viewer/auto.ts' },
     format: ['iife'],
     outExtension: () => ({ js: '.js' }),
