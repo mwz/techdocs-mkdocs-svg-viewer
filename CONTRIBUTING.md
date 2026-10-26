@@ -58,6 +58,38 @@ before each deployment. See the
 By contributing, you agree that your contribution is licensed under the
 [Apache License, Version 2.0](LICENSE).
 
+## Refresh the screenshots
+
+The capture script uses Chromium to reproduce the six README screenshots. After
+the development setup, install the example dependencies once:
+
+```sh
+pnpm example:backstage:setup
+```
+
+Then run this command from the repository root:
+
+```sh
+pnpm screenshots
+```
+
+The command builds the static Backstage demo and starts both preview servers. It
+replaces `img/mkdocs-{light,dark}.png`, `img/backstage-{light,dark}.png` and
+`img/svg-viewer-{light,dark}.png`, then stops the servers. Stop other previews
+on ports 4173 and 8001 before you run it.
+
+Page captures use a 1400 × 1050 viewport. Viewer captures use a 1600 × 1050
+viewport with three zoom steps, displayed as 195%. Each theme starts in a fresh
+browser session. The script waits for the diagram, theme and fonts before each
+capture. Review the images before you commit them, because fonts and browser
+updates can change their appearance.
+
+The capture steps are in
+[scripts/capture-screenshots.ts](scripts/capture-screenshots.ts). The
+[Playwright configuration](scripts/screenshots.config.ts) controls the servers,
+viewport and browser settings. Failed captures retain traces in
+`test-results/screenshots/`.
+
 ## Releases
 
 CI uses [trusted publishing](https://docs.npmjs.com/trusted-publishers), so no

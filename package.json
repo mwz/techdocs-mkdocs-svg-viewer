@@ -75,6 +75,7 @@
     "check": "pnpm examples:check && pnpm typecheck && pnpm test && pnpm test:browser",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "screenshots": "pnpm examples:check && playwright test --config scripts/screenshots.config.ts",
     "prepack": "pnpm build",
     "example:standalone:dev": "pnpm build && vite --host 127.0.0.1 --port 5174 --strictPort --open /examples/standalone/",
     "example:standalone:test": "pnpm build && playwright test tests/browser/standalone.spec.ts tests/browser/examples.spec.ts",

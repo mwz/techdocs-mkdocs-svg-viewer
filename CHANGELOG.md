@@ -26,6 +26,9 @@
 
 ### Other repository changes
 
+- Added `pnpm screenshots` to rebuild the examples and capture all six README
+  images in light and dark mode with fixed viewports and viewer zoom.
+
 - All examples use a space observatory diagram with 30 nodes for zoom and pan. A
   second page has a smaller calibration diagram with links in both directions,
   including page sections, query strings and legacy SVG links. The fictional
