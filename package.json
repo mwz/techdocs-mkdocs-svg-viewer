@@ -116,7 +116,7 @@
     "@backstage/plugin-techdocs-react": "1.4.0",
     "@playwright/test": "1.60.0",
     "@techdocs/cli": "^1.13.0",
-    "@types/node": "^24.0.0",
+    "@types/node": "^26.6.5",
     "@types/react": "^18.3.0",
     "prettier": "^3.6.0",
     "react": "18.3.1",
