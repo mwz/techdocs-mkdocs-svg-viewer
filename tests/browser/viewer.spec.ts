@@ -74,6 +74,8 @@ test('hover styles from the TechDocs shadow root still apply in the viewer', asy
   const link = page.locator('.tdsv a[aria-label="Read order service guide"]');
   const rect = link.locator('rect');
   const label = link.locator('.node-label');
+  // The expand button can open the viewer with the pointer over a diagram link.
+  await page.locator('.tdsv-title').hover();
   await expect(rect).toHaveCSS('stroke', 'rgb(140, 169, 216)');
   await expect(label).toHaveCSS('fill', 'rgb(34, 49, 77)');
   await expect(label).toHaveCSS('font-weight', '600');

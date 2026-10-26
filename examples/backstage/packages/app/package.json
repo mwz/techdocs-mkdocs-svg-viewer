@@ -11,9 +11,11 @@
     "build": "backstage-cli package build"
   },
   "dependencies": {
+    "@backstage/core-components": "0.18.15",
     "@backstage/core-plugin-api": "1.12.11",
     "@backstage/frontend-defaults": "0.5.7",
     "@backstage/frontend-plugin-api": "0.18.2",
+    "@backstage/plugin-app-react": "0.2.8",
     "@backstage/plugin-auth": "0.1.13",
     "@backstage/plugin-catalog": "2.0.10",
     "@backstage/plugin-search": "1.7.9",

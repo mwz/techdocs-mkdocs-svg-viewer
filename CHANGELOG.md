@@ -2,16 +2,17 @@
 
 ## Unreleased
 
-- Example commands use `example:<name>:<action>`, with `dev` to launch and
-  `test` to run tests. Added `example:standalone:dev` and
-  `example:standalone:test`. Renamed the MkDocs and Backstage commands to follow
-  the same convention.
+### Plugin functionality
+
+- The Expand diagram button takes its own line and centres beneath the rendered
+  diagram, including diagrams narrower than their content container. Its
+  position follows diagram and container size changes. Host CSS can override the
+  default layout with `.tdsv-expand` without `!important`.
 
 - Standalone setup now finds inline SVGs anywhere in the supplied container by
   default. The TechDocs addon keeps its documentation selector. Set
   `window.svgViewerOptions` before loading `svg-viewer.js` to customise the
-  selector, size thresholds and zoom limits. Added standalone HTML instructions
-  and a minimal example without MkDocs, Backstage or React. Existing direct
+  selector, size thresholds and zoom limits. Existing direct
   `installSvgViewer()` calls that need the previous selection must pass
   `selector: '.md-content__inner svg, article svg'` explicitly.
 
@@ -21,6 +22,29 @@
   the page theme. SVG artwork, zoom and pan stay unchanged. If browser storage
   is unavailable, the choice applies only to the open viewer.
 
+- The SVG viewer follows the active TechDocs or Material for MkDocs theme.
+
+### Other repository changes
+
+- The local Backstage app enters as a guest automatically and opens the example
+  documentation without a login screen. The catalogue remains available at
+  `/catalog`. The reader waits for the example catalogue entry during startup so
+  the first visit does not need a reload. Automatic guest sign-in also retries
+  temporary connection failures while the backend starts.
+
+- Added a static Backstage demo with the real TechDocs reader, SVG addon and
+  appearance controls. Browser tests cover GitHub Pages paths, bookmarks,
+  refreshes and SVG navigation without a backend. A GitHub Actions workflow
+  builds and tests pull requests and deploys changes from `main`.
+
+- Example commands use `example:<name>:<action>`, with `dev` to launch and
+  `test` to run tests. Added `example:standalone:dev` and
+  `example:standalone:test`. Renamed the MkDocs and Backstage commands to follow
+  the same convention.
+
+- Added standalone HTML instructions and a minimal example without MkDocs,
+  Backstage or React.
+
 - Both standalone demo pages include a light/dark switcher. They start in light
   mode and save the selected theme in the browser.
 
@@ -28,9 +52,8 @@
   includes a light/dark toggle in the header. It uses `mkdocs serve` and loads
   `techdocs-core` only when Backstage builds the site.
 
-- The SVG viewer follows the active TechDocs or Material for MkDocs theme. Added
-  Settings to the Backstage example for switching between Light, Dark and Auto,
-  with browser tests for theme selection and viewer colours.
+- Added Settings to the Backstage example for switching between Light, Dark and
+  Auto, with browser tests for theme selection and viewer colours.
 
 - Added a local Backstage 1.56.2 example with the SVG addon, guest sign-in,
   SQLite and the existing MkDocs site registered as TechDocs. Setup, build and

@@ -971,7 +971,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@backstage/catalog-client@npm:^1.16.3":
+"@backstage/catalog-client@npm:1.16.3, @backstage/catalog-client@npm:^1.16.3":
   version: 1.16.3
   resolution: "@backstage/catalog-client@npm:1.16.3"
   dependencies:
@@ -986,7 +986,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@backstage/catalog-model@npm:^1.10.2":
+"@backstage/catalog-model@npm:1.10.2, @backstage/catalog-model@npm:^1.10.2":
   version: 1.10.2
   resolution: "@backstage/catalog-model@npm:1.10.2"
   dependencies:
@@ -1572,7 +1572,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@backstage/core-compat-api@npm:^0.5.16":
+"@backstage/core-compat-api@npm:0.5.16, @backstage/core-compat-api@npm:^0.5.16":
   version: 0.5.16
   resolution: "@backstage/core-compat-api@npm:0.5.16"
   dependencies:
@@ -1598,7 +1598,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@backstage/core-components@npm:^0.18.15":
+"@backstage/core-components@npm:0.18.15, @backstage/core-components@npm:^0.18.15":
   version: 0.18.15
   resolution: "@backstage/core-components@npm:0.18.15"
   dependencies:
@@ -1868,7 +1868,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@backstage/plugin-app-react@npm:^0.2.8":
+"@backstage/plugin-app-react@npm:0.2.8, @backstage/plugin-app-react@npm:^0.2.8":
   version: 0.2.8
   resolution: "@backstage/plugin-app-react@npm:0.2.8"
   dependencies:
@@ -2116,7 +2116,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@backstage/plugin-catalog-react@npm:^3.3.0":
+"@backstage/plugin-catalog-react@npm:3.3.0, @backstage/plugin-catalog-react@npm:^3.3.0":
   version: 3.3.0
   resolution: "@backstage/plugin-catalog-react@npm:3.3.0"
   dependencies:
@@ -7476,9 +7476,11 @@ __metadata:
   resolution: "app@workspace:packages/app"
   dependencies:
     "@backstage/cli": "npm:0.36.7"
+    "@backstage/core-components": "npm:0.18.15"
     "@backstage/core-plugin-api": "npm:1.12.11"
     "@backstage/frontend-defaults": "npm:0.5.7"
     "@backstage/frontend-plugin-api": "npm:0.18.2"
+    "@backstage/plugin-app-react": "npm:0.2.8"
     "@backstage/plugin-auth": "npm:0.1.13"
     "@backstage/plugin-catalog": "npm:2.0.10"
     "@backstage/plugin-search": "npm:1.7.9"
@@ -10054,6 +10056,32 @@ __metadata:
   checksum: 10c0/d758899da03392e6712f042bec80aa293bbe9e9ff1b2634baae6a360113e708b91326594c8a486d475c69d6259afb7efacdc3537bfcda1c6c648e390ce601b19
   languageName: node
   linkType: hard
+
+"demo@workspace:packages/demo":
+  version: 0.0.0-use.local
+  resolution: "demo@workspace:packages/demo"
+  dependencies:
+    "@backstage/catalog-client": "npm:1.16.3"
+    "@backstage/catalog-model": "npm:1.10.2"
+    "@backstage/cli": "npm:0.36.7"
+    "@backstage/core-compat-api": "npm:0.5.16"
+    "@backstage/core-components": "npm:0.18.15"
+    "@backstage/core-plugin-api": "npm:1.12.11"
+    "@backstage/frontend-defaults": "npm:0.5.7"
+    "@backstage/frontend-plugin-api": "npm:0.18.2"
+    "@backstage/plugin-catalog": "npm:2.0.10"
+    "@backstage/plugin-catalog-react": "npm:3.3.0"
+    "@backstage/plugin-techdocs": "npm:1.19.0"
+    "@backstage/plugin-techdocs-react": "npm:1.4.0"
+    "@backstage/plugin-user-settings": "npm:0.9.8"
+    "@backstage/ui": "npm:0.19.0"
+    "@mwz/techdocs-mkdocs-svg-viewer": "workspace:*"
+    "@types/react": "npm:^18.3.0"
+    react: "npm:18.3.1"
+    react-dom: "npm:18.3.1"
+    react-router-dom: "npm:^6.30.2"
+  languageName: unknown
+  linkType: soft
 
 "denque@npm:^2.1.0":
   version: 2.1.0

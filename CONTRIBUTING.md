@@ -41,6 +41,20 @@ pnpm example:backstage:test
 The browser test uses the real TechDocs reader and the local MkDocs example. The
 Backstage app has its own Yarn lockfile and uses Node 24.
 
+For changes to the static Backstage demo or its deployment, also run:
+
+```sh
+pnpm example:backstage-demo:build
+pnpm example:backstage-demo:test
+```
+
+The tests serve the built files under the GitHub Pages URL prefix. They test
+direct visits and refreshes without a server routing fallback. They also reject
+backend requests and external requests. Keep these tests when changing the
+demo's routes, APIs or build scripts. The `GitHub Pages` workflow runs them
+before each deployment. See the
+[demo instructions](examples/backstage/README.md#static-demo).
+
 By contributing, you agree that your contribution is licensed under the
 [Apache License, Version 2.0](LICENSE).
 

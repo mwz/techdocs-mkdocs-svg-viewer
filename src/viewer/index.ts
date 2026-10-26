@@ -66,8 +66,27 @@ export function installSvgViewer(
   root.append(style);
   const entries = new Map<
     SVGSVGElement,
-    { button: HTMLButtonElement; marker: string | null }
+    {
+      button: HTMLButtonElement;
+      marker: string | null;
+      resizeTargets: Element[];
+    }
   >();
+  const resizeTargets = new Map<Element, number>();
+  const resize = new ResizeObserver(() => scheduleScan());
+  const observeSize = (element: Element) => {
+    const count = resizeTargets.get(element) ?? 0;
+    if (!count) resize.observe(element);
+    resizeTargets.set(element, count + 1);
+  };
+  const unobserveSize = (element: Element) => {
+    const count = resizeTargets.get(element)! - 1;
+    if (count) resizeTargets.set(element, count);
+    else {
+      resize.unobserve(element);
+      resizeTargets.delete(element);
+    }
+  };
   const addedHrefs = new Set<Element>();
   const resolveLinks = (svg: SVGSVGElement) => {
     let base: URL | undefined;
@@ -91,16 +110,53 @@ export function installSvgViewer(
     if (!entry || active || disposed) return;
     active = openViewer(root, svg, entry.button, { minZoom, maxZoom }, () => {
       active = undefined;
+      scheduleScan();
     });
   };
   const restoreEntry = (svg: SVGSVGElement) => {
     const entry = entries.get(svg);
     if (!entry) return;
+    entry.resizeTargets.forEach(unobserveSize);
     entry.button.remove();
     if (entry.marker === null)
       svg.removeAttribute('data-techdocs-svg-viewer-ready');
     else svg.setAttribute('data-techdocs-svg-viewer-ready', entry.marker);
     entries.delete(svg);
+  };
+  const alignButton = (svg: SVGSVGElement, button: HTMLButtonElement) => {
+    // The source is temporarily in the dialog. Keep the page button in place
+    // until the source returns, then measure its restored layout.
+    if (active?.source === svg) return;
+    const diagram = svg.getBoundingClientRect();
+    const control = button.getBoundingClientRect();
+    if (!diagram.width || !control.width) return;
+    const computed = win.getComputedStyle(button);
+    const borderBoxWidth =
+      parseFloat(computed.width) +
+      (computed.boxSizing === 'border-box'
+        ? 0
+        : parseFloat(computed.paddingLeft) +
+          parseFloat(computed.paddingRight) +
+          parseFloat(computed.borderLeftWidth) +
+          parseFloat(computed.borderRightWidth));
+    // Rectangles include ancestor scaling, while margins use local CSS pixels.
+    const scale = control.width / borderBoxWidth;
+    const rtl = computed.direction === 'rtl';
+    const delta =
+      diagram.left + diagram.width / 2 - control.left - control.width / 2;
+    const offset =
+      (parseFloat(rtl ? computed.marginRight : computed.marginLeft) || 0) +
+      (rtl ? -delta : delta) / scale;
+    const previous = parseFloat(
+      button.style.getPropertyValue('--tdsv-expand-offset'),
+    );
+    if (
+      Number.isFinite(offset) &&
+      (!Number.isFinite(previous) || Math.abs(offset - previous) > 0.01)
+    ) {
+      // Only expose a measurement. A host's margin rule remains in control.
+      button.style.setProperty('--tdsv-expand-offset', `${offset}px`);
+    }
   };
   const scan = () => {
     frame = 0;
@@ -148,12 +204,16 @@ export function installSvgViewer(
       const link = svg.closest('a');
       const anchor = link && root.contains(link) ? link : svg;
       anchor.after(button);
+      const targets = [svg, button, button.parentElement!];
+      targets.forEach(observeSize);
       entries.set(svg, {
         button,
         marker: svg.getAttribute('data-techdocs-svg-viewer-ready'),
+        resizeTargets: targets,
       });
       svg.setAttribute('data-techdocs-svg-viewer-ready', '');
     }
+    for (const [svg, { button }] of entries) alignButton(svg, button);
   };
   const scheduleScan = () => {
     if (!frame && !disposed) frame = win.requestAnimationFrame(scan);
@@ -188,7 +248,14 @@ export function installSvgViewer(
     subtree: true,
     childList: true,
     attributes: true,
-    attributeFilter: ['viewBox', 'width', 'height', 'class', 'data-svg-viewer'],
+    attributeFilter: [
+      'viewBox',
+      'width',
+      'height',
+      'class',
+      'style',
+      'data-svg-viewer',
+    ],
   });
   win.addEventListener('resize', scheduleScan);
   // Stylesheet loading is not a DOM mutation. Recheck diagrams that had no
@@ -198,6 +265,7 @@ export function installSvgViewer(
   return () => {
     disposed = true;
     observer.disconnect();
+    resize.disconnect();
     win.cancelAnimationFrame(frame);
     win.removeEventListener('resize', scheduleScan);
     root.removeEventListener('load', scheduleScan, true);
