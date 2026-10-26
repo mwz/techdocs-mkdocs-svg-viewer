@@ -10,6 +10,9 @@ Click an inline SVG diagram to open it in a full-window, accessible viewer. The
 viewer has zoom, mouse and touch panning, direction buttons and an optional
 browser fullscreen mode.
 
+Try the [live Backstage demo](https://mwz.github.io/techdocs-mkdocs-svg-viewer/)
+to explore the diagrams, zoom and pan controls, and page navigation.
+
 The viewer works with inline `<svg>` elements on any HTML page, including SVGs
 that
 [mkdocs-inline-select-svg-plugin](https://pypi.org/project/mkdocs-inline-select-svg-plugin/)
