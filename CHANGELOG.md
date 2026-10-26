@@ -26,6 +26,12 @@
 
 ### Other repository changes
 
+- All examples use a space observatory diagram with 30 nodes for zoom and pan. A
+  second page has a smaller calibration diagram with links in both directions,
+  including page sections, query strings and legacy SVG links. The fictional
+  mission follows NASA and STScI descriptions of spacecraft communications,
+  calibration and archive products, with sources and scope notes in the example.
+
 - The local Backstage app enters as a guest automatically and opens the example
   documentation without a login screen. The catalogue remains available at
   `/catalog`. The reader waits for the example catalogue entry during startup so

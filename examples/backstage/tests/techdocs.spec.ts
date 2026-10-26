@@ -1,3 +1,4 @@
+import { checkObservatoryNavigation } from '../../../tests/observatory-navigation';
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -20,15 +21,15 @@ test('addon keeps its defaults independently of standalone configuration', async
   await page.goto('/docs/default/component/svg-viewer-example');
   await expect(
     page.getByRole('button', {
-      name: 'Expand Order processing architecture',
+      name: 'Expand Space observatory architecture',
       exact: true,
     }),
   ).toBeVisible();
   await expect(
-    page.locator('#architecture a[aria-label="Read order service guide"]'),
-  ).toHaveAttribute('href', /order-service\/#orders$/);
+    page.locator('#observatory a[aria-label="Read calibration guide"]'),
+  ).toHaveAttribute('href', /processing\/\?from=observatory#calibration$/);
 
-  await page.locator('#architecture').evaluate((source) => {
+  await page.locator('#observatory').evaluate((source) => {
     const root = source.getRootNode() as ShadowRoot;
     const diagram = (title: string, width: number, height: number) => {
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -106,7 +107,7 @@ test('Settings switches the TechDocs viewer between dark and light themes', asyn
     await page.goto('/docs/default/component/svg-viewer-example');
     await page
       .getByRole('button', {
-        name: 'Expand Order processing architecture',
+        name: 'Expand Space observatory architecture',
         exact: true,
       })
       .click();
@@ -179,7 +180,7 @@ test('viewer theme persists across TechDocs navigation and reloads', async ({
   const docs = '/docs/default/component/svg-viewer-example';
   await page.goto(docs);
   const expand = page.getByRole('button', {
-    name: 'Expand Order processing architecture',
+    name: 'Expand Space observatory architecture',
     exact: true,
   });
   await expand.click();
@@ -236,14 +237,14 @@ test('home opens the example docs and routes SVG links without reloading', async
   await expect(page).toHaveURL('/docs/default/component/svg-viewer-example');
 
   const expand = page.getByRole('button', {
-    name: 'Expand Order processing architecture',
+    name: 'Expand Space observatory architecture',
     exact: true,
   });
   await expect(expand).toHaveCount(1);
   await expect(
     page.getByRole('button', { name: /^(enter|sign in)$/i }),
   ).toHaveCount(0);
-  await page.locator('#architecture').evaluate((svg) => {
+  await page.locator('#observatory').evaluate((svg) => {
     svg.style.width = '300px';
   });
   const layout = () =>
@@ -261,9 +262,9 @@ test('home opens the example docs and routes SVG links without reloading', async
   expect((await layout()).gap).toBeGreaterThanOrEqual(0);
   await expand.click();
   await expect(page.getByRole('dialog')).toBeVisible();
-  await expect(page.locator('.tdsv #architecture')).toHaveAttribute(
+  await expect(page.locator('.tdsv #observatory')).toHaveAttribute(
     'viewBox',
-    '-20 -20 840 360',
+    '-20 -20 3100 2060',
   );
   await page.getByRole('button', { name: 'Zoom in', exact: true }).click();
   await expect(page.getByLabel('Zoom relative to fit')).toHaveText('125%');
@@ -276,12 +277,15 @@ test('home opens the example docs and routes SVG links without reloading', async
     Object.assign(window, { backstageSvgTest: true });
   });
   await expand.click();
-  const link = page.getByRole('link', { name: 'Read order service guide' });
-  await expect(link).toHaveAttribute('href', /order-service\/#orders$/);
+  const link = page.getByRole('link', { name: 'Read calibration guide' });
+  await expect(link).toHaveAttribute(
+    'href',
+    /processing\/\?from=observatory#calibration$/,
+  );
   await link.click();
-  await expect(page).toHaveURL(/\/order-service\/#orders$/);
+  await expect(page).toHaveURL(/\/processing\/\?from=observatory#calibration$/);
   await expect(
-    page.getByRole('heading', { name: /^Orders/, level: 2 }),
+    page.getByRole('heading', { name: /^Calibration/, level: 2 }),
   ).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(await page.evaluate(() => 'backstageSvgTest' in window)).toBe(true);
@@ -289,10 +293,21 @@ test('home opens the example docs and routes SVG links without reloading', async
   await page.goBack();
   await expect(expand).toHaveCount(1);
   await expand.click();
-  await page.getByRole('link', { name: 'Jump to queue note' }).click();
-  await expect(page).toHaveURL(/#queue-note$/);
+  await page.getByRole('link', { name: 'Read raw data note' }).click();
+  await expect(page).toHaveURL(/#data-note$/);
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(await page.evaluate(() => 'backstageSvgTest' in window)).toBe(true);
   expect(errors).toEqual([]);
   expect(await readFile(mkdocsPath, 'utf8')).toBe(originalMkdocs);
+});
+
+test('both observatory diagrams support page and fragment navigation without reloading', async ({
+  page,
+}) => {
+  await checkObservatoryNavigation(
+    page,
+    '/docs/default/component/svg-viewer-example/',
+    '/docs/default/component/svg-viewer-example/processing/',
+    true,
+  );
 });

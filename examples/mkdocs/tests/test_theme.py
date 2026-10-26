@@ -15,7 +15,7 @@ class MaterialThemeTest(unittest.TestCase):
                 config = load_config(config_file=str(config_file), site_dir=output)
                 config["theme"]["palette"] = {"scheme": scheme}
                 build(config)
-                for page in ("index.html", "order-service/index.html"):
+                for page in ("index.html", "processing/index.html"):
                     html = (Path(output) / page).read_text(encoding="utf-8")
                     body = re.search(r"<body\b[^>]*>", html).group()
                     self.assertIn(f'data-md-color-scheme="{scheme}"', body)

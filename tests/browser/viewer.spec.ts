@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-const open = async (page: Page, url = '/') => {
+const open = async (page: Page, url = '/tests/fixtures/viewer.html') => {
   await page.goto(url);
   await page
     .getByRole('button', {
@@ -15,7 +15,7 @@ const transform = (page: Page) =>
 test('opens from a diagram background and restores the exact original node and styles', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/tests/fixtures/viewer.html');
   await page.locator('#architecture').evaluate((svg) => {
     (window as any).originalSvg = svg;
     (window as any).originalMarkup = svg.outerHTML;
@@ -57,7 +57,7 @@ test('opens from a diagram background and restores the exact original node and s
 test('hover styles from the TechDocs shadow root still apply in the viewer', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/tests/fixtures/viewer.html');
   // Like a TechdocsCustomStyles addon: an !important rule and a plain rule.
   await page.locator('#architecture').evaluate((svg) => {
     const style = document.createElement('style');
@@ -90,7 +90,7 @@ test('hover styles from the TechDocs shadow root still apply in the viewer', asy
 test('a hover style active when the viewer opens does not stick', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/tests/fixtures/viewer.html');
   await page.locator('#architecture').evaluate((svg) => {
     const style = document.createElement('style');
     style.textContent =
@@ -110,7 +110,7 @@ test('a hover style active when the viewer opens does not stick', async ({
 test('ignores theme icons and opt-outs; whole-image links get an independent expand button', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/tests/fixtures/viewer.html');
   await expect(page.locator('.tdsv-expand')).toHaveCount(2);
   await expect(page.locator('#wrapped-link .tdsv-expand')).toHaveCount(0);
   await expect(page.locator('#mermaid-1')).not.toHaveAttribute(
@@ -125,7 +125,7 @@ test('ignores theme icons and opt-outs; whole-image links get an independent exp
 test('clicking a link in the original SVG does not open a viewer', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/tests/fixtures/viewer.html');
   await page
     .context()
     .route('https://backstage.io/**', (route) =>
@@ -189,7 +189,7 @@ test('fragment links keep their href and close on hash navigation', async ({
 test('with TechDocs routing, xlink:href links navigate in-app and close the viewer', async ({
   page,
 }) => {
-  await open(page, '/?techdocs');
+  await open(page, '/tests/fixtures/viewer.html?techdocs');
   await page.evaluate(() => ((window as any).samePage = true));
   const link = page.locator('a[aria-label="Read order service guide"]');
   const resolved = new URL('/guide/?from=diagram#orders', page.url()).href;
@@ -208,7 +208,7 @@ test('with TechDocs routing, xlink:href links navigate in-app and close the view
 test('with TechDocs routing, fragment links close the viewer without hashchange', async ({
   page,
 }) => {
-  await open(page, '/?techdocs');
+  await open(page, '/tests/fixtures/viewer.html?techdocs');
   await page.evaluate(() => {
     (window as any).hashchanges = 0;
     window.addEventListener('hashchange', () => (window as any).hashchanges++);
@@ -222,7 +222,7 @@ test('with TechDocs routing, fragment links close the viewer without hashchange'
 test('modifier clicks on routed links leave the viewer open', async ({
   page,
 }) => {
-  await open(page, '/?techdocs');
+  await open(page, '/tests/fixtures/viewer.html?techdocs');
   await page
     .getByRole('link', { name: 'Jump to queue note' })
     .click({ modifiers: ['ControlOrMeta'] });
@@ -232,7 +232,7 @@ test('modifier clicks on routed links leave the viewer open', async ({
 test('resolved xlink hrefs are removed when the addon unmounts', async ({
   page,
 }) => {
-  await page.goto('/?techdocs');
+  await page.goto('/tests/fixtures/viewer.html?techdocs');
   const link = page.locator('a[aria-label="Read order service guide"]');
   await expect(link).toHaveAttribute('href', /\/guide\//);
   await page.getByRole('button', { name: 'Remove addon' }).click();
@@ -419,7 +419,7 @@ test('touch pinch zooms and a touch tap still follows a link', async ({
 test('SVG without viewBox gets temporary scaling coordinates, restored on close', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/tests/fixtures/viewer.html');
   await page
     .locator('#architecture')
     .evaluate((svg) => svg.removeAttribute('viewBox'));

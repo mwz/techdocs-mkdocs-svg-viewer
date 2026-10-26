@@ -1,3 +1,4 @@
+import { checkObservatoryNavigation } from '../../../tests/observatory-navigation';
 import { expect, test as base } from '@playwright/test';
 
 const prefix = '/techdocs-mkdocs-svg-viewer';
@@ -41,7 +42,7 @@ test('home loads the real TechDocs addon and SVG links navigate without a reload
 }) => {
   expect((await page.goto(`${prefix}/`))?.status()).toBe(200);
   const expand = page.getByRole('button', {
-    name: 'Expand Order processing architecture',
+    name: 'Expand Space observatory architecture',
     exact: true,
   });
   await expect(expand).toHaveCount(1);
@@ -58,10 +59,12 @@ test('home loads the real TechDocs addon and SVG links navigate without a reload
     Object.assign(window, { demoNavigationMarker: true }),
   );
   await expand.click();
-  await page.getByRole('link', { name: 'Read order service guide' }).click();
-  await expect(page).toHaveURL(`${docs}/order-service/#orders`);
+  await page.getByRole('link', { name: 'Read calibration guide' }).click();
+  await expect(page).toHaveURL(
+    `${docs}/processing/?from=observatory#calibration`,
+  );
   await expect(
-    page.getByRole('heading', { name: /^Orders/, level: 2 }),
+    page.getByRole('heading', { name: /^Calibration/, level: 2 }),
   ).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(await page.evaluate(() => 'demoNavigationMarker' in window)).toBe(
@@ -69,8 +72,8 @@ test('home loads the real TechDocs addon and SVG links navigate without a reload
   );
   await page.goBack();
   await expand.click();
-  await page.getByRole('link', { name: 'Jump to queue note' }).click();
-  await expect(page).toHaveURL(/#queue-note$/);
+  await page.getByRole('link', { name: 'Read raw data note' }).click();
+  await expect(page).toHaveURL(/#data-note$/);
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(await page.evaluate(() => 'demoNavigationMarker' in window)).toBe(
     true,
@@ -80,22 +83,22 @@ test('home loads the real TechDocs addon and SVG links navigate without a reload
 test('bookmarks and refreshes work for nested documentation with fragments and queries', async ({
   page,
 }) => {
-  const url = `${docs}/order-service/?from=bookmark#orders`;
+  const url = `${docs}/processing/?from=bookmark#calibration`;
   expect((await page.goto(url))?.status()).toBe(200);
   await expect(
-    page.getByRole('heading', { name: /^Orders/, level: 2 }),
+    page.getByRole('heading', { name: /^Calibration/, level: 2 }),
   ).toBeVisible();
   await expect(page).toHaveURL(url);
   expect((await page.reload())?.status()).toBe(200);
   await expect(
-    page.getByRole('heading', { name: /^Orders/, level: 2 }),
+    page.getByRole('heading', { name: /^Calibration/, level: 2 }),
   ).toBeVisible();
   await expect(page).toHaveURL(url);
   // A URL without a trailing slash gets a directory redirect, not a 404.
   expect((await page.goto(docs))?.status()).toBe(200);
   await expect(
     page.getByRole('button', {
-      name: 'Expand Order processing architecture',
+      name: 'Expand Space observatory architecture',
       exact: true,
     }),
   ).toBeVisible();
@@ -117,7 +120,7 @@ test('appearance works without authentication and survives refreshes', async ({
     await page.goto(`${docs}/`);
     await page
       .getByRole('button', {
-        name: 'Expand Order processing architecture',
+        name: 'Expand Space observatory architecture',
         exact: true,
       })
       .click();
@@ -135,4 +138,15 @@ test('appearance works without authentication and survives refreshes', async ({
     else expect(brightness).toBeGreaterThan(128);
     await page.keyboard.press('Escape');
   }
+});
+
+test('both observatory diagrams support page and fragment navigation without reloading', async ({
+  page,
+}) => {
+  await checkObservatoryNavigation(
+    page,
+    `${docs}/`,
+    `${docs}/processing/`,
+    true,
+  );
 });

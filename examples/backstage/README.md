@@ -85,11 +85,15 @@ React addon.
 
 Try these actions in the diagram:
 
-1. Select Expand Order processing architecture and use the zoom controls.
+1. Select Expand Space observatory architecture and use the zoom and pan
+   controls.
 2. Press Escape and make sure that focus returns to the expand button.
-3. Open the viewer and select Order service to follow its relative SVG link.
-4. Return to the diagram and select Queue note to follow its page fragment.
-5. Make sure that each diagram has one expand button.
+3. Open the viewer and select Calibration to open the science processing page.
+4. Expand the smaller diagram and select Science archive to return to the
+   overview.
+5. Select Raw archive to follow its page fragment.
+6. Use the browser's Back button and refresh the science processing page.
+7. Make sure that each diagram has one expand button.
 
 After the setup command, run the automated checks from the repository root:
 
