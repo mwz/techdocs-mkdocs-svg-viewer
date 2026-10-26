@@ -49,15 +49,17 @@ jobs:
       - uses: jdx/mise-action@v5
       - run: pnpm install --frozen-lockfile
       - run: pnpm example:backstage:setup
+      - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm example:mkdocs:test
       - run: pnpm example:backstage:check
-      - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm example:backstage:test
       - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: backstage-browser-results
-          path: test-results/backstage/
+          path: |
+            test-results/backstage/
+            test-results/mkdocs/
           if-no-files-found: ignore
 
   publish:

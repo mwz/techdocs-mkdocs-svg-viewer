@@ -12,5 +12,5 @@
     "declaration": true,
     "isolatedModules": true
   },
-  "include": ["src", "tests", "dev", "*.ts"]
+  "include": ["src", "tests", "dev", "scripts", "*.ts"]
 }

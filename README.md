@@ -10,6 +10,9 @@ Click an inline SVG diagram to open it in a full-window, accessible viewer. The
 viewer has zoom, mouse and touch panning, direction buttons and an optional
 browser fullscreen mode.
 
+Try the [live Backstage demo](https://mwz.github.io/techdocs-mkdocs-svg-viewer/)
+to explore the diagrams, zoom and pan controls, and page navigation.
+
 The viewer works with inline `<svg>` elements on any HTML page, including SVGs
 that
 [mkdocs-inline-select-svg-plugin](https://pypi.org/project/mkdocs-inline-select-svg-plugin/)
@@ -218,7 +221,7 @@ plugins:
 ```
 
 ```md
-![Order processing](architecture.inline.svg)
+![Space observatory](observatory.inline.svg)
 ```
 
 The Python plugin runs when MkDocs builds the documentation. This addon runs in
@@ -226,9 +229,21 @@ the Backstage frontend. You do not need to add anything to each SVG. The inline
 plugin uses the SVG `<title>`, not the Markdown alt text. A meaningful title
 gives better labels for the button and the viewer.
 
-`examples/mkdocs` contains a small MkDocs fixture that you can run. The `dev`
-demo uses the same SVG. This SVG has a relative `xlink:href`, an external link,
-a fragment, a non-zero viewBox origin, and gradient and marker references.
+All examples use the same space observatory diagram with 30 nodes on a 3100 ×
+2060 canvas. The science processing page has a smaller diagram with links back
+to the overview. Both diagrams have links to page sections. They exercise
+relative `href` and legacy `xlink:href` links, query strings, fragments,
+non-zero viewBox origins and marker references. The overview also has a gradient
+and an external link.
+
+The diagrams show a simplified fictional space mission. The
+[overview notes](examples/mkdocs/docs/index.md#sources-and-simplifications)
+explain the scope and link to the NASA and STScI sources behind the model.
+
+The SVG sources are in `examples/mkdocs/docs`. After you edit them, run
+`pnpm examples:sync` to update the standalone HTML copies. These copies work
+when opened directly from disk. `pnpm check` detects copies that need an update.
+The small regression fixtures live in `tests/fixtures`.
 
 ## Standalone HTML page
 
@@ -273,8 +288,8 @@ or `<iframe>`. The viewer skips SVGs smaller than 80 × 40 CSS pixels. Add
 `data-svg-viewer="on"` to a small SVG to include it, or `data-svg-viewer="off"`
 to exclude a diagram.
 
-The [minimal example](examples/standalone/index.html) uses the script built from
-this checkout. After the [development setup](#development), run
+The [standalone example](examples/standalone/index.html) uses the script built
+from this checkout. After the [development setup](#development), run
 `pnpm example:standalone:dev` to build the script and open the example. You can
 also run `pnpm build` and open the HTML file directly without a server.
 
@@ -566,10 +581,11 @@ viewer source. MkDocs installs its Python dependencies and serves on port 8000.
 Before the first Backstage launch, run `pnpm example:backstage:setup`. Press
 Ctrl+C to stop a running example.
 
-The standalone tests use Chromium. The MkDocs tests check the generated HTML and
-need the Python dependencies installed by `example:mkdocs:dev` or
-`example:backstage:setup`. The Backstage tests start the app and test the viewer
-in a real TechDocs reader.
+The standalone and MkDocs tests use Chromium. The MkDocs tests also check the
+generated HTML and need the Python dependencies installed by
+`example:mkdocs:dev` or `example:backstage:setup`. The Backstage tests start the
+app and test the viewer in a real TechDocs reader. Navigation tests cover both
+diagrams, page sections, query strings, browser history and refreshes.
 
 ### Run the included Backstage app
 

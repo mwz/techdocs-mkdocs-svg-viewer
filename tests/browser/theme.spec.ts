@@ -1,8 +1,12 @@
 import { expect, test } from '@playwright/test';
 
 for (const [url, diagram, heading] of [
-  ['/', 'Order processing architecture', 'Service architecture'],
-  ['/dev/standalone.html', 'Standalone diagram', 'Standalone site'],
+  ['/', 'Space observatory architecture', 'Space observatory'],
+  [
+    '/dev/standalone.html',
+    'Space observatory architecture',
+    'Space observatory',
+  ],
 ] as const) {
   test(`theme selection colours the page and viewer and survives reload at ${url}`, async ({
     page,
@@ -177,7 +181,7 @@ for (const [url, diagram, heading] of [
       .click();
     await page
       .getByRole('button', {
-        name: url === '/' ? 'Expand Next diagram' : 'Expand Next page diagram',
+        name: 'Expand Calibration and quality review',
         exact: true,
       })
       .click();
@@ -244,7 +248,7 @@ for (const failure of ['read', 'write'] as const) {
       .getByRole('button', { name: 'Switch to dark mode', exact: true })
       .click();
     const expand = page.getByRole('button', {
-      name: 'Expand Standalone diagram',
+      name: 'Expand Space observatory architecture',
       exact: true,
     });
     await expand.click();

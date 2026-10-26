@@ -1,7 +1,9 @@
 # MkDocs fixture
 
-A small MkDocs site with one inlined diagram. Python dependencies are managed
-with Poetry. `mise install` in the repository root installs Python and Poetry.
+A MkDocs site with a large space observatory diagram and a smaller science
+processing diagram on a second page. Diagram links connect both pages and their
+sections. Poetry manages the Python dependencies. `mise install` in the
+repository root installs Python and Poetry.
 
 ## Preview the viewer without Backstage
 
@@ -36,8 +38,9 @@ The standalone configuration does not load `techdocs-core`, because that plugin
 clears the Material palette. Backstage adds it to its generated copy and uses
 the theme selected in Backstage Settings instead.
 
-To check both palettes in the generated HTML, run `pnpm example:mkdocs:test`
-from the repository root after installing the Python dependencies.
+To check both palettes and diagram navigation, run `pnpm example:mkdocs:test`
+from the repository root after installing the Python dependencies and Chromium.
+Use `pnpm exec playwright install --with-deps chromium` to install the browser.
 
 ## Build the site
 
@@ -62,6 +65,15 @@ pnpm example:backstage:dev
 Open <http://localhost:3000/docs/default/component/svg-viewer-example> and sign
 in as a guest. Backstage builds this site through the same Poetry environment.
 
-The diagram's **Order service** node uses a relative legacy `xlink:href`
-(`order-service/#orders`) to `docs/order-service.md`. In Backstage, clicking it
-opens that page without a full page reload.
+The overview's **Calibration** node uses a relative legacy `xlink:href`
+(`processing/?from=observatory#calibration`) to `docs/processing.md`. The
+**Quality review** node uses a regular `href` to another section on that page.
+The smaller diagram links back to the overview through both link formats. In
+Backstage, these links open the destination without a full page reload.
+
+Select **Raw archive** on the overview or **Calibration** on the smaller diagram
+to test navigation within a page. Try each link with the viewer open and closed,
+then use the browser's Back button. Both pages also appear in the site menu.
+
+The SVG files in `docs` are the shared sources for all examples. After edits,
+run `pnpm examples:sync` from the repository root to update the standalone HTML.

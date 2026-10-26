@@ -2,16 +2,20 @@ import { expect, test } from '@playwright/test';
 
 // Exercises the built drop-in script (dist/svg-viewer.js) on a plain page, as
 // MkDocs `extra_javascript` would load it outside Backstage.
-const url = '/dev/standalone.html';
+const url = '/tests/fixtures/standalone.html';
 
 for (const example of [
   {
-    url: '/examples/standalone/index.html',
+    url: '/tests/fixtures/minimal.html',
     title: 'Example diagram',
     svg: 'body > svg',
   },
   { url, title: 'Standalone diagram', svg: '#standalone' },
-  { url: '/', title: 'Order processing architecture', svg: '#architecture' },
+  {
+    url: '/tests/fixtures/viewer.html',
+    title: 'Order processing architecture',
+    svg: '#architecture',
+  },
 ]) {
   test(`expand button has a centred default and accepts earlier host CSS on ${example.url}`, async ({
     page,
@@ -113,7 +117,7 @@ for (const example of [
 test('expand alignment follows a scaled RTL container and recovers after closing', async ({
   page,
 }) => {
-  await page.goto('/examples/standalone/index.html');
+  await page.goto('/tests/fixtures/minimal.html');
   const button = page.getByRole('button', {
     name: 'Expand Example diagram',
     exact: true,
@@ -157,7 +161,7 @@ for (const entry of ['script', 'module']) {
         route.fulfill({ contentType: 'text/javascript', body: '' }),
       );
     }
-    await page.goto('/examples/standalone/index.html');
+    await page.goto('/tests/fixtures/minimal.html');
     if (entry === 'module') {
       await page.evaluate(async () => {
         const modulePath = '/dist/viewer/index.js';
@@ -202,7 +206,7 @@ test('script configuration controls selection, size thresholds and zoom limits',
       maxZoom: 1.25,
     };
   });
-  await page.goto('/examples/standalone/index.html');
+  await page.goto('/tests/fixtures/minimal.html');
   await expect(page.locator('.tdsv-expand')).toHaveCount(0);
   await page.evaluate(() => {
     document.body.insertAdjacentHTML(
@@ -238,7 +242,7 @@ test('script configuration keeps standalone defaults for omitted options', async
   await page.addInitScript(() => {
     window.svgViewerOptions = { maxZoom: 1 };
   });
-  await page.goto('/examples/standalone/index.html');
+  await page.goto('/tests/fixtures/minimal.html');
   await page
     .getByRole('button', { name: 'Expand Example diagram', exact: true })
     .click();

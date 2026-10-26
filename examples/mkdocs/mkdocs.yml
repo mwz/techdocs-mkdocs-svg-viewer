@@ -1,4 +1,7 @@
-site_name: SVG viewer fixture
+site_name: Space observatory
+nav:
+  - Observatory overview: index.md
+  - Science processing: processing.md
 theme:
   name: material
   palette:

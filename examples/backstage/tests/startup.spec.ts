@@ -38,7 +38,7 @@ for (const status of [404, 500]) {
     await page.getByRole('button', { name: 'Try again', exact: true }).click();
     await expect(
       page.getByRole('button', {
-        name: 'Expand Order processing architecture',
+        name: 'Expand Space observatory architecture',
         exact: true,
       }),
     ).toBeVisible();
@@ -47,7 +47,7 @@ for (const status of [404, 500]) {
 
 for (const path of [
   '/',
-  '/docs/default/component/svg-viewer-example/order-service/#orders',
+  '/docs/default/component/svg-viewer-example/processing/?from=observatory#calibration',
 ]) {
   test(`waits for catalogue ingestion on first visit to ${path}`, async ({
     page,
@@ -95,15 +95,17 @@ for (const path of [
     if (path === '/') {
       await expect(
         page.getByRole('button', {
-          name: 'Expand Order processing architecture',
+          name: 'Expand Space observatory architecture',
           exact: true,
         }),
       ).toBeVisible();
     } else {
       await expect(
-        page.getByRole('heading', { name: /^Orders/, level: 2 }),
+        page.getByRole('heading', { name: /^Calibration/, level: 2 }),
       ).toBeVisible();
-      await expect(page).toHaveURL(/\/order-service\/#orders$/);
+      await expect(page).toHaveURL(
+        /\/processing\/\?from=observatory#calibration$/,
+      );
     }
     expect(await page.evaluate(() => 'startupTest' in window)).toBe(true);
   });

@@ -17,7 +17,7 @@ for (const failure of ['connection', 'unavailable'] as const) {
         });
     });
     await page.goto(
-      '/docs/default/component/svg-viewer-example/order-service/#orders',
+      '/docs/default/component/svg-viewer-example/processing/?from=observatory#calibration',
     );
     await page.evaluate(() => Object.assign(window, { signInTest: true }));
     await expect.poll(() => attempts).toBeGreaterThanOrEqual(2);
@@ -26,9 +26,11 @@ for (const failure of ['connection', 'unavailable'] as const) {
     );
     ready = true;
     await expect(
-      page.getByRole('heading', { name: /^Orders/, level: 2 }),
+      page.getByRole('heading', { name: /^Calibration/, level: 2 }),
     ).toBeVisible();
-    await expect(page).toHaveURL(/\/order-service\/#orders$/);
+    await expect(page).toHaveURL(
+      /\/processing\/\?from=observatory#calibration$/,
+    );
     expect(await page.evaluate(() => 'signInTest' in window)).toBe(true);
   });
 }
@@ -69,7 +71,7 @@ for (const failure of ['connection', 'unauthorised'] as const) {
     await page.getByRole('button', { name: 'Try again', exact: true }).click();
     await expect(
       page.getByRole('button', {
-        name: 'Expand Order processing architecture',
+        name: 'Expand Space observatory architecture',
         exact: true,
       }),
     ).toBeVisible();
