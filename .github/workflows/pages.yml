@@ -16,20 +16,20 @@ jobs:
     env:
       DEMO_BASE_URL: https://mwz.github.io/techdocs-mkdocs-svg-viewer
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: jdx/mise-action@v5
       - run: pnpm install --frozen-lockfile
       - run: pnpm example:backstage:setup
       - run: pnpm example:backstage-demo:build
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm example:backstage-demo:test
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: backstage-demo-browser-results
           path: test-results/backstage-demo/
           if-no-files-found: ignore
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@v5
         if:
           github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         with:
@@ -50,6 +50,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/configure-pages@v5
-      - uses: actions/deploy-pages@v4
+      - uses: actions/configure-pages@v6
+      - uses: actions/deploy-pages@v5
         id: deployment
