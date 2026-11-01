@@ -34,6 +34,10 @@
   including page sections, query strings and legacy SVG links. The fictional
   mission follows NASA and STScI descriptions of spacecraft communications,
   calibration and archive products, with sources and scope notes in the example.
+  Added `pnpm examples:sync` to regenerate the standalone pages from the MkDocs
+  diagrams, and `pnpm examples:check` to detect differences during validation.
+  Browser tests cover diagram links across the standalone, MkDocs and Backstage
+  examples ([#15](https://github.com/mwz/techdocs-mkdocs-svg-viewer/pull/15)).
 
 - The local Backstage app enters as a guest automatically and opens the example
   documentation without a login screen. The catalogue remains available at
@@ -69,6 +73,34 @@
   browser test commands support local testing without Docker or external
   accounts. mise manages the tools for local development and the Backstage CI
   job.
+
+- Releases and snapshots now stage on npm for maintainer approval before
+  publication. A manual CI run on `main` can also stage a snapshot
+  ([#10](https://github.com/mwz/techdocs-mkdocs-svg-viewer/pull/10)).
+
+- GitHub release notes now unwrap changelog paragraphs to avoid unwanted line
+  breaks.
+
+- Simplified the README and added release, npm and jsDelivr badges, plus
+  guidance on testing approved snapshots.
+
+#### Dependency updates
+
+- Updated development tools to TypeScript 6.0.3, Vitest 5.0.5 and tsup 9.0.0
+  ([#19](https://github.com/mwz/techdocs-mkdocs-svg-viewer/pull/19),
+  [#8](https://github.com/mwz/techdocs-mkdocs-svg-viewer/pull/8),
+  [#9](https://github.com/mwz/techdocs-mkdocs-svg-viewer/pull/9)).
+
+- Updated `fast-uri` to 3.1.9, `node-forge` to 1.4.2 and `follow-redirects` to
+  1.16.2 in the root pnpm lockfile
+  ([#12](https://github.com/mwz/techdocs-mkdocs-svg-viewer/pull/12),
+  [#17](https://github.com/mwz/techdocs-mkdocs-svg-viewer/pull/17),
+  [#18](https://github.com/mwz/techdocs-mkdocs-svg-viewer/pull/18)).
+
+- Updated GitHub Actions used by CI and the demo deployment, including the
+  pinned actions used for npm publishing
+  ([#4](https://github.com/mwz/techdocs-mkdocs-svg-viewer/pull/4),
+  [#16](https://github.com/mwz/techdocs-mkdocs-svg-viewer/pull/16)).
 
 ## 0.2.0
 
