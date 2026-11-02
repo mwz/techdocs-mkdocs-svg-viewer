@@ -1,4 +1,4 @@
-# Backstage TechDocs & MkDocs SVG viewer
+# <img src="img/project-icon.png" alt="SVG viewer icon" width="64" height="64" /> Backstage TechDocs & MkDocs SVG viewer
 
 [![GitHub release](https://img.shields.io/github/v/release/mwz/techdocs-mkdocs-svg-viewer?label=release)](https://github.com/mwz/techdocs-mkdocs-svg-viewer/releases/latest)
 [![npm stable version](https://img.shields.io/npm/v/%40mwz%2Ftechdocs-mkdocs-svg-viewer/latest?label=npm)](https://www.npmjs.com/package/@mwz/techdocs-mkdocs-svg-viewer/v/latest)
