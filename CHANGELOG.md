@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.0
+
 ### Plugin functionality
 
 - The Expand diagram button takes its own line and centres beneath the rendered
@@ -86,10 +88,11 @@
 
 #### Dependency updates
 
-- Updated development tools to TypeScript 6.0.3, Vitest 5.0.5 and tsup 9.0.0
-  ([#19](https://github.com/mwz/techdocs-mkdocs-svg-viewer/pull/19),
+- Updated development tools to TypeScript 6.0.3, Vitest 5.0.5, tsup 9.0.0 and
+  Vite 8.3.5 ([#19](https://github.com/mwz/techdocs-mkdocs-svg-viewer/pull/19),
   [#8](https://github.com/mwz/techdocs-mkdocs-svg-viewer/pull/8),
-  [#9](https://github.com/mwz/techdocs-mkdocs-svg-viewer/pull/9)).
+  [#9](https://github.com/mwz/techdocs-mkdocs-svg-viewer/pull/9),
+  [#7](https://github.com/mwz/techdocs-mkdocs-svg-viewer/pull/7)).
 
 - Updated `fast-uri` to 3.1.9, `node-forge` to 1.4.2 and `follow-redirects` to
   1.16.2 in the root pnpm lockfile

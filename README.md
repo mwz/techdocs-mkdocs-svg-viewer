@@ -248,8 +248,8 @@ The small regression fixtures live in `tests/fixtures`.
 ## Standalone HTML page
 
 The viewer works on a plain HTML page with inline SVGs anywhere in `<body>`. The
-general `svg` selector and script configuration below are unreleased. The
-published `0.2.0` script still requires the documentation containers.
+general `svg` selector and script configuration below require version `0.3.0` or
+later. The `0.2.0` script requires the documentation containers.
 
 After the [development setup](#development), run `pnpm build`. Copy
 `dist/svg-viewer.js` beside your HTML file. Save this example as `index.html`
@@ -339,8 +339,8 @@ const dispose = installSvgViewer(document.body, {
 ```
 
 The selector searches within the container passed as the first argument. The
-viewer also finds matching SVGs added to that container later. In the current
-checkout, an omitted selector defaults to `svg`. With version `0.2.0`, set the
+viewer also finds matching SVGs added to that container later. From version
+`0.3.0`, an omitted selector defaults to `svg`. With version `0.2.0`, set the
 selector explicitly to search outside documentation containers.
 
 If an existing direct call needs the previous selection, pass
@@ -368,7 +368,7 @@ does not need a JavaScript toolchain.
      - inline-select-svg:
          pattern: '[.]inline[.]svg$'
    extra_javascript:
-     - https://cdn.jsdelivr.net/npm/@mwz/techdocs-mkdocs-svg-viewer@0.2.0/dist/svg-viewer.js
+     - https://cdn.jsdelivr.net/npm/@mwz/techdocs-mkdocs-svg-viewer@0.3.0/dist/svg-viewer.js
    ```
 
    Keep an exact version in the URL. Then a new release does not change your

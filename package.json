@@ -1,6 +1,6 @@
 {
   "name": "@mwz/techdocs-mkdocs-svg-viewer",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Accessible full-window pan and zoom for inline SVG diagrams in Backstage TechDocs and MkDocs sites",
   "keywords": [
     "backstage",
